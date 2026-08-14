@@ -340,6 +340,40 @@ export interface Config {
 
 Source: [`packages/attachment/attachment-local/src/index.ts:24`](../packages/attachment/attachment-local/src/index.ts)
 
+<a id="deepseek-aidsh-awiki"></a>
+
+## `@deepseek-ai/dsh-awiki`
+
+Requires: `tools`
+
+```ts config-catalog
+/** Host deployment configuration. */
+export interface Config {
+  /** AWiki user-service base URL. Production deployments require HTTPS. */
+  readonly userServiceUrl: string
+  /** Handle provider domain used by Legacy registration. */
+  readonly userServiceDomain: string
+  /** AWiki message-service base URL. Production deployments require HTTPS. */
+  readonly messageServiceUrl: string
+  /** Public message-service base URL published in the identity DID document. */
+  readonly messageServicePublicUrl: string
+  /** Authoritative DID of the configured message service. */
+  readonly messageServiceDid: string
+  /** Exact HTTPS origins allowed for discovered attachment object URLs. Defaults to the public message-service origin. */
+  readonly allowedAttachmentOrigins?: string[]
+  /** Permit loopback HTTP only for local tests. Defaults to false. */
+  readonly allowInsecureLoopbackForTesting?: boolean
+  /** SDK-owned persistent identity state path. */
+  readonly statePath: string
+  /** Complete decoded attachment byte limit. Defaults to 10 MiB. */
+  readonly attachmentMaxBytes?: number
+  /** Browser history polling interval while its drawer is open. Defaults to 3000 ms. */
+  readonly pollIntervalMs?: number
+}
+```
+
+Source: [`packages/awiki/awiki/src/index.ts:52`](../packages/awiki/awiki/src/index.ts)
+
 <a id="deepseek-aidsh-bash-local"></a>
 
 ## `@deepseek-ai/dsh-bash-local`
@@ -3032,6 +3066,7 @@ These load from a `cordis.yml` entry with no `config:` block; they declare no co
 - `@deepseek-ai/dsh-client-modules` — requires `webServer` · `loader` ([`packages/client/modules/src/index.ts`](../packages/client/modules/src/index.ts))
 - `@deepseek-ai/dsh-client-runtime` ([`packages/client/runtime/src/index.ts`](../packages/client/runtime/src/index.ts))
 - `@deepseek-ai/dsh-client-ui-agent-preset` ([`packages/client/ui-agent-preset/src/index.ts`](../packages/client/ui-agent-preset/src/index.ts))
+- `@deepseek-ai/dsh-client-ui-awiki` ([`packages/client/ui-awiki/src/index.ts`](../packages/client/ui-awiki/src/index.ts))
 - `@deepseek-ai/dsh-client-ui-commands` ([`packages/client/ui-commands/src/index.ts`](../packages/client/ui-commands/src/index.ts))
 - `@deepseek-ai/dsh-client-ui-conversation` ([`packages/client/ui-conversation/src/index.ts`](../packages/client/ui-conversation/src/index.ts))
 - `@deepseek-ai/dsh-client-ui-cordis` ([`packages/extensions/ui-cordis/src/index.ts`](../packages/extensions/ui-cordis/src/index.ts))
@@ -3120,6 +3155,7 @@ Imported as libraries by other packages; a `cordis.yml` cannot load them.
 - `@deepseek-ai/dsh-anonymous-user-id` ([`packages/identity/anonymous-user-id/src/index.ts`](../packages/identity/anonymous-user-id/src/index.ts))
 - `@deepseek-ai/dsh-app-boot` ([`packages/boot/app-boot/src/index.ts`](../packages/boot/app-boot/src/index.ts))
 - `@deepseek-ai/dsh-atomic-write` ([`packages/util/atomic-write/src/index.ts`](../packages/util/atomic-write/src/index.ts))
+- `@deepseek-ai/dsh-awiki-web` ([`packages/bundle/awiki-web/src/index.ts`](../packages/bundle/awiki-web/src/index.ts))
 - `@deepseek-ai/dsh-base` ([`packages/bundle/base/src/index.ts`](../packages/bundle/base/src/index.ts))
 - `@deepseek-ai/dsh-brand` ([`packages/util/brand/src/index.ts`](../packages/util/brand/src/index.ts))
 - `@deepseek-ai/dsh-client-schema-form` ([`packages/client/schema-form/src/index.ts`](../packages/client/schema-form/src/index.ts))

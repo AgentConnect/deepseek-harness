@@ -1,0 +1,7 @@
+{
+  "name": "awiki-agent-example",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "description": "Runnable keyless and remote acceptance compositions for the AWiki Harness plugin"
+}

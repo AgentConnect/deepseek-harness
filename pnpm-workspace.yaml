@@ -25,6 +25,9 @@ packages:
 linkWorkspacePackages: true
 
 overrides:
+  # Use the sibling AWiki workspace until @anp/typescript-sdk@0.2.0 is published.
+  # The dsh-awiki package keeps its publishable semver dependency.
+  '@anp/typescript-sdk': 'link:../awiki-space/anp/anp/typescript/ts_sdk'
   '@deepseek-ai/cosmokit': 'link:vendor/cosmokit'
   '@deepseek-ai/schemastery': 'link:vendor/schemastery'
 

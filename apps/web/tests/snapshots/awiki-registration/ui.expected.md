@@ -1,0 +1,17 @@
+- dialog "AWiki":
+  - banner:
+    - img
+    - heading "AWiki" [level=2]
+    - button "刷新 AWiki":
+      - img
+    - button "关闭 AWiki":
+      - img
+  - img
+  - heading "注册 AWiki 身份" [level=3]
+  - paragraph: 该身份由当前 Harness 部署中的全部 Agent 共同使用。
+  - text: Handle
+  - textbox "Handle":
+    - /placeholder: 例如 alice
+  - text: 手机号
+  - textbox "手机号"
+  - button "获取验证码" [disabled]

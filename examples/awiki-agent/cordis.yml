@@ -1,0 +1,46 @@
+# Keyless AWiki MVP composition. The fake SDK provider is Loader-mounted beside
+# the production Host plugin, so every configured agent reaches one shared
+# identity without network or credentials.
+- id: agent-spine
+  name: '@deepseek-ai/dsh-agent-spine-demo'
+  config:
+    agents:
+      - id: awiki-agent-a
+        provider: awiki-keyless
+        model: awiki-keyless
+        cwd: !!js process.cwd()
+      - id: awiki-agent-b
+        provider: awiki-keyless
+        model: awiki-keyless
+        cwd: !!js process.cwd()
+    persona: 'Exercise the AWiki MVP tools exactly as requested.'
+    workspaceContext: false
+    skills:
+      enabled: false
+    toolBash: false
+    toolJobs: false
+
+- id: keyless-llm
+  name: './src/keyless-llm.ts'
+
+- id: approval
+  name: '@deepseek-ai/dsh-user-approval'
+  config:
+    policy: ask
+
+- id: keyless-approval
+  name: './src/keyless-approval.ts'
+
+- id: awiki
+  name: '@deepseek-ai/dsh-awiki'
+  config:
+    userServiceUrl: 'http://127.0.0.1:1'
+    userServiceDomain: 'awiki.test'
+    messageServiceUrl: 'http://127.0.0.1:1'
+    messageServicePublicUrl: 'http://127.0.0.1:1'
+    messageServiceDid: 'did:wba:messages.awiki.test'
+    allowInsecureLoopbackForTesting: true
+    statePath: './awiki-snapshot-state.json'
+
+- id: fake-awiki-provider
+  name: './src/fake-awiki-client.ts'

@@ -7,6 +7,7 @@ Profile bundles: npm packages whose manifest declares `"dsh": { "bundle": { "pat
 | Package | Role | ctx key |
 |---|---|---|
 | [`base/`](base/README.md) | The shared dsh core every profile applies first | — (patch only) |
+| [`awiki-web/`](awiki-web/README.md) | Optional AWiki Host provider and right-side browser messaging drawer | mounts `awiki` |
 | [`web-app/`](web-app/README.md) | Browser surface: web patch layer + runtime glue plugin | mounts rows |
 | [`headless/`](headless/README.md) | Direct one-shot task mode over base, with no Host or Web layer | mounts `headless-runner` |
 
