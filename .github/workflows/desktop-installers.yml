@@ -29,20 +29,20 @@ jobs:
             command: make:mac
             artifact: deepseek-harness-macos-arm64
             path: |
-              deepseek-harness/experiments/electron/out/make/**/*.dmg
-              deepseek-harness/experiments/electron/out/make/**/*.zip
+              h/experiments/electron/out/make/**/*.dmg
+              h/experiments/electron/out/make/**/*.zip
           - runner: windows-latest
             command: make:windows
             artifact: deepseek-harness-windows-x64
-            path: deepseek-harness/experiments/electron/out/make/**/*.exe
+            path: h/experiments/electron/out/make/**/*.exe
     runs-on: ${{ matrix.runner }}
     defaults:
       run:
-        working-directory: deepseek-harness
+        working-directory: h
     steps:
       - uses: actions/checkout@v4
         with:
-          path: deepseek-harness
+          path: h
       - uses: actions/checkout@v4
         with:
           repository: Howe829/AgentConnect
@@ -55,12 +55,24 @@ jobs:
         with:
           node-version: 24
           cache: pnpm
-          cache-dependency-path: deepseek-harness/pnpm-lock.yaml
+          cache-dependency-path: h/pnpm-lock.yaml
       - name: Build the linked ANP TypeScript SDK
         working-directory: anp/typescript/ts_sdk
         run: npm ci && npm run build
       - run: pnpm install --frozen-lockfile
-      - run: pnpm --filter deepseek-harness-electron run ${{ matrix.command }}
+      - name: Make macOS installers
+        if: runner.os == 'macOS'
+        run: pnpm --filter deepseek-harness-electron run ${{ matrix.command }}
+      - name: Map a short Windows build path
+        if: runner.os == 'Windows'
+        working-directory: ${{ github.workspace }}
+        shell: pwsh
+        run: 'subst W: $env:GITHUB_WORKSPACE'
+      - name: Make Windows installer
+        if: runner.os == 'Windows'
+        working-directory: W:\h
+        shell: pwsh
+        run: pnpm --filter deepseek-harness-electron run ${{ matrix.command }}
       - uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact }}
