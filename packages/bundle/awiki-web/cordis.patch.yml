@@ -1,0 +1,24 @@
+# Optional AWiki messaging for a Web profile. Apply this bundle after
+# @deepseek-ai/dsh-base and @deepseek-ai/dsh-web-app. It adds one Host service,
+# its production TypeScript SDK provider, and the browser drawer; it does not
+# replace the Web server row, so the Web bundle's loopback bind remains active.
+
+- insert:
+    - id: awiki
+      name: '@deepseek-ai/dsh-awiki'
+      config:
+        userServiceUrl: !!js process.env.DSH_AWIKI_USER_SERVICE_URL
+        userServiceDomain: !!js process.env.DSH_AWIKI_USER_SERVICE_DOMAIN
+        messageServiceUrl: !!js process.env.DSH_AWIKI_MESSAGE_SERVICE_URL
+        messageServiceDid: !!js process.env.DSH_AWIKI_MESSAGE_SERVICE_DID
+        messageServicePublicUrl: !!js process.env.DSH_AWIKI_MESSAGE_SERVICE_PUBLIC_URL
+        allowedAttachmentOrigins: !!js JSON.parse(process.env.DSH_AWIKI_ALLOWED_ATTACHMENT_ORIGINS ?? '[]')
+        statePath: !!js process.env.DSH_AWIKI_STATE_PATH
+        pollIntervalMs: !!js Number(process.env.DSH_AWIKI_POLL_INTERVAL_MS ?? '5000')
+        attachmentMaxBytes: !!js Number(process.env.DSH_AWIKI_ATTACHMENT_MAX_BYTES ?? '10485760')
+
+    - id: awiki-provider
+      name: '@deepseek-ai/dsh-awiki/provider'
+
+    - id: ui-awiki
+      name: '@deepseek-ai/dsh-client-ui-awiki'

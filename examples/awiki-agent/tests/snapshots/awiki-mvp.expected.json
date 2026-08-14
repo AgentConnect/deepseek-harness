@@ -1,0 +1,165 @@
+{
+  "transcript": [
+    {
+      "agent": "agent-a",
+      "type": "tool/call",
+      "name": "awiki_identity_status",
+      "arguments": {}
+    },
+    {
+      "agent": "agent-a",
+      "type": "tool/result",
+      "text": "{\"ok\":true,\"value\":{\"did\":\"did:awiki:snapshot:shared\",\"handle\":\"harness@awiki.info\",\"registeredAt\":1750000000000}}"
+    },
+    {
+      "agent": "agent-a",
+      "type": "tool/call",
+      "name": "awiki_list_conversations",
+      "arguments": {}
+    },
+    {
+      "agent": "agent-a",
+      "type": "tool/result",
+      "text": "{\"ok\":true,\"value\":{\"items\":[{\"kind\":\"direct\",\"id\":\"conversation-direct\",\"peerDid\":\"did:awiki:snapshot:peer\",\"peerHandle\":\"peer@awiki.info\",\"title\":\"Snapshot peer\",\"lastMessageAt\":1750000000100},{\"kind\":\"group\",\"id\":\"conversation-group\",\"groupDid\":\"did:awiki:group:snapshot\",\"title\":\"Snapshot group\",\"lastMessageAt\":1750000000200}],\"hasMore\":false}}"
+    },
+    {
+      "agent": "agent-a",
+      "type": "tool/call",
+      "name": "awiki_history",
+      "arguments": {
+        "conversation_id": "conversation-direct"
+      }
+    },
+    {
+      "agent": "agent-a",
+      "type": "tool/result",
+      "text": "{\"ok\":true,\"value\":{\"items\":[{\"id\":\"message-initial\",\"conversationId\":\"conversation-direct\",\"conversationKind\":\"direct\",\"senderDid\":\"did:awiki:snapshot:peer\",\"senderHandle\":\"peer@awiki.info\",\"sentAt\":1750000000100,\"outgoing\":false,\"content\":{\"kind\":\"text\",\"text\":\"hello from the snapshot peer\"}}],\"hasMore\":false}}"
+    },
+    {
+      "agent": "agent-a",
+      "type": "tool/call",
+      "name": "awiki_send_message",
+      "arguments": {
+        "target_kind": "direct",
+        "target": "peer@awiki.info",
+        "text": "hello from Harness agent A",
+        "idempotency_key": "snapshot-agent-a-text"
+      }
+    },
+    {
+      "agent": "agent-a",
+      "type": "approval/asked",
+      "toolName": "awiki_send_message",
+      "reason": "Send a text message through the deployment AWiki identity"
+    },
+    {
+      "agent": "agent-a",
+      "type": "approval/decided",
+      "outcome": "allowed-once"
+    },
+    {
+      "agent": "agent-a",
+      "type": "tool/result",
+      "text": "{\"ok\":true,\"value\":{\"id\":\"message-outgoing-1\",\"conversationId\":\"conversation-direct\",\"conversationKind\":\"direct\",\"senderDid\":\"did:awiki:snapshot:shared\",\"senderHandle\":\"harness@awiki.info\",\"sentAt\":1750000001001,\"outgoing\":true,\"content\":{\"kind\":\"text\",\"text\":\"hello from Harness agent A\"}}}"
+    },
+    {
+      "agent": "agent-a",
+      "type": "tool/call",
+      "name": "awiki_send_attachment",
+      "arguments": {
+        "target_kind": "group",
+        "target": "did:awiki:group:snapshot",
+        "file_name": "snapshot.txt",
+        "mime_type": "text/plain",
+        "bytes_base64": "QVdpa2kgc25hcHNob3QgYXR0YWNobWVudC4K",
+        "caption": "Harness snapshot attachment",
+        "idempotency_key": "snapshot-agent-a-attachment"
+      }
+    },
+    {
+      "agent": "agent-a",
+      "type": "approval/asked",
+      "toolName": "awiki_send_attachment",
+      "reason": "Send an attachment through the deployment AWiki identity"
+    },
+    {
+      "agent": "agent-a",
+      "type": "approval/decided",
+      "outcome": "allowed-once"
+    },
+    {
+      "agent": "agent-a",
+      "type": "tool/result",
+      "text": "{\"ok\":true,\"value\":{\"id\":\"message-outgoing-2\",\"conversationId\":\"conversation-group\",\"conversationKind\":\"group\",\"senderDid\":\"did:awiki:snapshot:shared\",\"senderHandle\":\"harness@awiki.info\",\"sentAt\":1750000001002,\"outgoing\":true,\"content\":{\"kind\":\"attachment\",\"attachment\":{\"id\":\"attachment-1\",\"fileName\":\"snapshot.txt\",\"mimeType\":\"text/plain\",\"size\":27,\"sha256\":\"5633d34228c5f0115b4237abd088594f9032faf6b281a622eccb7f0f779419fd\"},\"caption\":\"Harness snapshot attachment\"}}}"
+    },
+    {
+      "agent": "agent-a",
+      "type": "assistant/message",
+      "text": "AGENT_A_AWIKI_COMPLETE"
+    },
+    {
+      "agent": "agent-b",
+      "type": "tool/call",
+      "name": "awiki_identity_status",
+      "arguments": {}
+    },
+    {
+      "agent": "agent-b",
+      "type": "tool/result",
+      "text": "{\"ok\":true,\"value\":{\"did\":\"did:awiki:snapshot:shared\",\"handle\":\"harness@awiki.info\",\"registeredAt\":1750000000000}}"
+    },
+    {
+      "agent": "agent-b",
+      "type": "tool/call",
+      "name": "awiki_send_message",
+      "arguments": {
+        "target_kind": "group",
+        "target": "did:awiki:group:snapshot",
+        "text": "hello from Harness agent B",
+        "idempotency_key": "snapshot-agent-b-text"
+      }
+    },
+    {
+      "agent": "agent-b",
+      "type": "approval/asked",
+      "toolName": "awiki_send_message",
+      "reason": "Send a text message through the deployment AWiki identity"
+    },
+    {
+      "agent": "agent-b",
+      "type": "approval/decided",
+      "outcome": "allowed-once"
+    },
+    {
+      "agent": "agent-b",
+      "type": "tool/result",
+      "text": "{\"ok\":true,\"value\":{\"id\":\"message-outgoing-3\",\"conversationId\":\"conversation-group\",\"conversationKind\":\"group\",\"senderDid\":\"did:awiki:snapshot:shared\",\"senderHandle\":\"harness@awiki.info\",\"sentAt\":1750000001003,\"outgoing\":true,\"content\":{\"kind\":\"text\",\"text\":\"hello from Harness agent B\"}}}"
+    },
+    {
+      "agent": "agent-b",
+      "type": "assistant/message",
+      "text": "AGENT_B_AWIKI_COMPLETE"
+    }
+  ],
+  "result": {
+    "type": "result",
+    "agents": [
+      {
+        "id": "agent-a",
+        "output": "AGENT_A_AWIKI_COMPLETE",
+        "usage": {
+          "inputTokens": 17,
+          "outputTokens": 11
+        }
+      },
+      {
+        "id": "agent-b",
+        "output": "AGENT_B_AWIKI_COMPLETE",
+        "usage": {
+          "inputTokens": 8,
+          "outputTokens": 5
+        }
+      }
+    ]
+  }
+}

@@ -140,6 +140,7 @@
         "./packages/util/*/src/invariant.ts",
         "./packages/mcp/*/src/invariant.ts",
         "./packages/identity/*/src/invariant.ts",
+        "./packages/awiki/*/src/invariant.ts",
         "./packages/test-support/*/src/invariant.ts"
       ],
       // host/client package names prefix the group dir (dsh-client-<dir>), so
@@ -220,6 +221,11 @@
       "@deepseek-ai/dsh-client-ui-settings-plugin-inventory": ["./packages/client/ui-settings-plugin-inventory/src"],
       "@deepseek-ai/dsh-client-locale": ["./packages/client/locale/src"],
       "@deepseek-ai/dsh-client-web": ["./packages/client/web/src"],
+      "@deepseek-ai/dsh-client-ui-awiki": ["./packages/client/ui-awiki/src"],
+      "@deepseek-ai/dsh-awiki/types": ["./packages/awiki/awiki/src/types.ts"],
+      "@deepseek-ai/dsh-awiki/client": ["./packages/awiki/awiki/src/client.ts"],
+      "@deepseek-ai/dsh-awiki/provider": ["./packages/awiki/awiki/src/provider.ts"],
+      "@deepseek-ai/dsh-awiki/provider-api": ["./packages/awiki/awiki/src/provider-api.ts"],
       // sdk/ folders are role-named without their npm-side sdk/jsonrpc prefixes,
       // so the generic wildcard cannot map these three package names.
       "@deepseek-ai/dsh-sdk-client": ["./packages/sdk/client/src"],
@@ -270,6 +276,7 @@
         "./packages/util/*/src",
         "./packages/mcp/*/src",
         "./packages/identity/*/src",
+        "./packages/awiki/*/src",
         "./packages/test-support/*/src",
         "./packages/host/*/src",
         "./packages/client/*/src"

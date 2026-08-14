@@ -1,0 +1,46 @@
+# Opt-in remote AWiki acceptance. Secrets remain in the process environment and
+# SDK state files; this Loader composition contains only service locations and
+# the fixed single-user provider wiring.
+- id: agent-spine
+  name: '@deepseek-ai/dsh-agent-spine-demo'
+  config:
+    agents:
+      - id: awiki-agent-a
+        provider: awiki-remote
+        model: awiki-remote
+        cwd: !!js process.cwd()
+      - id: awiki-agent-b
+        provider: awiki-remote
+        model: awiki-remote
+        cwd: !!js process.cwd()
+    persona: 'Run the remote AWiki MVP acceptance sequence.'
+    workspaceContext: false
+    skills:
+      enabled: false
+    toolBash: false
+    toolJobs: false
+
+- id: remote-llm
+  name: './src/remote-llm.ts'
+
+- id: approval
+  name: '@deepseek-ai/dsh-user-approval'
+  config:
+    policy: ask
+
+- id: remote-approval
+  name: './src/keyless-approval.ts'
+
+- id: awiki
+  name: '@deepseek-ai/dsh-awiki'
+  config:
+    userServiceUrl: !!js process.env.DSH_AWIKI_USER_SERVICE_URL
+    userServiceDomain: !!js process.env.DSH_AWIKI_USER_SERVICE_DOMAIN
+    messageServiceUrl: !!js process.env.DSH_AWIKI_MESSAGE_SERVICE_URL
+    messageServicePublicUrl: !!js process.env.DSH_AWIKI_MESSAGE_SERVICE_PUBLIC_URL
+    messageServiceDid: !!js process.env.DSH_AWIKI_MESSAGE_SERVICE_DID
+    statePath: !!js process.env.DSH_AWIKI_PRIMARY_STATE_PATH
+    attachmentMaxBytes: 10485760
+
+- id: awiki-provider
+  name: '@deepseek-ai/dsh-awiki/provider'
