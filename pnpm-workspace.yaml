@@ -7,6 +7,8 @@ packages:
   - native/landlock-run/packages/*
   # Product assemblies over the package tier; apps/cli owns the `dsh` bin.
   - apps/*
+  # Private desktop distributions that are workspace-built but never published.
+  - experiments/*
   - website
   # The runnable demo leaves join as ONE workspace member: examples/package.json
   # declares the union of every leaf's cordis.yml plugins as workspace:*, so a
@@ -24,12 +26,18 @@ packages:
 # builds must resolve those matching names to this workspace's pinned sources.
 linkWorkspacePackages: true
 
+# Electron Forge requires its traversal packages in the public hoist. The DSH
+# production closure is staged separately and remains isolated.
+publicHoistPattern:
+  - '@electron-forge/*'
+
 overrides:
   # Use the sibling AWiki workspace until @anp/typescript-sdk@0.2.0 is published.
   # The dsh-awiki package keeps its publishable semver dependency.
-  '@anp/typescript-sdk': 'link:../awiki-space/anp/anp/typescript/ts_sdk'
+  '@anp/typescript-sdk': 'link:../anp/typescript/ts_sdk'
   '@deepseek-ai/cosmokit': 'link:vendor/cosmokit'
   '@deepseek-ai/schemastery': 'link:vendor/schemastery'
+  '@electron/rebuild': '4.2.0'
 
 peerDependencyRules:
   allowedVersions:
@@ -42,6 +50,7 @@ peerDependencyRules:
 # (git hooks) genuinely need theirs.
 allowBuilds:
   esbuild: true
+  electron: true
   lefthook: true
   # Cross-platform boundary for the persistent PTY backend, including ConPTY on Windows.
   node-pty: true
@@ -56,6 +65,10 @@ allowBuilds:
   # The Python runtime deploy includes the reviewed workspace postinstall that
   # restores the executable bit on node-pty's macOS spawn helper.
   '@deepseek-ai/dsh-subprocess-local@file:packages/subprocess/subprocess-local': true
+  # Electron Forge installer makers prepare their platform helpers here.
+  electron-winstaller: true
+  fs-xattr: true
+  macos-alias: true
 
 minimumReleaseAgeExclude:
   # Fresh pi-ai releases carry the model catalog updates that are the whole

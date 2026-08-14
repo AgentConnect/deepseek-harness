@@ -406,14 +406,19 @@ describe('settings domain', () => {
 
   it('serves product preference namespaces without invalidating the model catalog', async () => {
     const ctx = await harness()
+    ctx.settings.register(settingsNamespace('awiki'), z.object({ domain: z.string() }))
     ctx.settings.register(settingsNamespace('ui-onboarding'), z.object({ welcomeNoticeVersion: z.string() }))
     ctx.settings.register(settingsNamespace('ui-theme'), z.object({
       preference: z.union(['light', 'dark', 'system']).default('system'),
     }))
     const api = createApiProxy(ctx, DEFAULTS)
     expect(expectOk(await api.settings.describe(request({}))).namespaces.map(view => view.ns))
-      .toEqual(['ui-onboarding', 'ui-theme'])
-    const frames = await collectHost(api, ['host/remote-event'], 2, async () => {
+      .toEqual(['awiki', 'ui-onboarding', 'ui-theme'])
+    const frames = await collectHost(api, ['host/remote-event'], 3, async () => {
+      expectOk(await api.settings.mutate(request({
+        ns: 'awiki',
+        ops: [{ op: 'set', path: ['domain'], value: 'tenant.example' }],
+      })))
       expectOk(await api.settings.mutate(request({
         ns: 'ui-onboarding',
         ops: [{ op: 'set', path: ['welcomeNoticeVersion'], value: 'v1' }],
@@ -423,7 +428,11 @@ describe('settings domain', () => {
         ops: [{ op: 'set', path: ['preference'], value: 'dark' }],
       })))
     })
-    expect(frames).toEqual([forwardedSettings('ui-onboarding'), forwardedSettings('ui-theme')])
+    expect(frames).toEqual([
+      forwardedSettings('awiki'),
+      forwardedSettings('ui-onboarding'),
+      forwardedSettings('ui-theme'),
+    ])
   })
 
   it('serves the agent-preset namespace, so a browser preset picker can persist its choice', async () => {
