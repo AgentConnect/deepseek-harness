@@ -10,5 +10,9 @@ export default defineConfig({
   fixedExtension: false,
   dts: false,
   clean: false,
-  deps: { neverBundle: ['electron'] },
+  deps: {
+    alwaysBundle: ['tar'],
+    neverBundle: ['electron'],
+    onlyBundle: false,
+  },
 })

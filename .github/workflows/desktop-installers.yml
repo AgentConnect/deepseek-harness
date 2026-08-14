@@ -2,9 +2,22 @@ name: Desktop installers
 
 on:
   workflow_dispatch:
+  pull_request:
+    branches:
+      - agent/awiki-mvp
+    paths:
+      - '.github/workflows/desktop-installers.yml'
+      - 'apps/cli/**'
+      - 'experiments/electron/**'
+      - 'experiments/electron-runtime/**'
+      - 'packages/boot/app-boot/**'
+      - 'packages/host/apiproxy/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
   push:
     branches:
-      - agent/awiki-electron-distribution
+      - agent/awiki-mvp
     paths:
       - '.github/workflows/desktop-installers.yml'
       - 'apps/cli/**'
@@ -60,8 +73,50 @@ jobs:
         working-directory: anp/typescript/ts_sdk
         run: npm ci && npm run build
       - run: pnpm install --frozen-lockfile
-      - name: Make macOS installers
-        if: runner.os == 'macOS'
+      - name: Import the Apple distribution certificate
+        if: runner.os == 'macOS' && github.event_name == 'push'
+        env:
+          MACOS_CERTIFICATE_P12_BASE64: ${{ secrets.MACOS_CERTIFICATE_P12_BASE64 }}
+          MACOS_CERTIFICATE_PASSWORD: ${{ secrets.MACOS_CERTIFICATE_PASSWORD }}
+          DSH_MACOS_SIGN_IDENTITY: ${{ secrets.DSH_MACOS_SIGN_IDENTITY }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          configured=0
+          missing=0
+          for name in MACOS_CERTIFICATE_P12_BASE64 MACOS_CERTIFICATE_PASSWORD DSH_MACOS_SIGN_IDENTITY APPLE_ID APPLE_APP_SPECIFIC_PASSWORD APPLE_TEAM_ID; do
+            if [[ -n "${!name}" ]]; then configured=1; else missing=1; fi
+          done
+          if [[ "$configured" == 0 ]]; then
+            echo 'Apple distribution credentials are not configured; producing an unsigned validation artifact.'
+            exit 0
+          fi
+          if [[ "$missing" == 1 ]]; then
+            echo 'Apple distribution credentials are incomplete.' >&2
+            exit 1
+          fi
+          certificate_path="$RUNNER_TEMP/developer-id-application.p12"
+          keychain_path="$RUNNER_TEMP/deepseek-harness-signing.keychain-db"
+          keychain_password="$(uuidgen)"
+          printf '%s' "$MACOS_CERTIFICATE_P12_BASE64" | base64 -D > "$certificate_path"
+          security create-keychain -p "$keychain_password" "$keychain_path"
+          security set-keychain-settings -lut 21600 "$keychain_path"
+          security unlock-keychain -p "$keychain_password" "$keychain_path"
+          security import "$certificate_path" -P "$MACOS_CERTIFICATE_PASSWORD" -T /usr/bin/codesign -t cert -f pkcs12 -k "$keychain_path"
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$keychain_password" "$keychain_path"
+          rm -f "$certificate_path"
+          echo "DSH_MACOS_KEYCHAIN=$keychain_path" >> "$GITHUB_ENV"
+      - name: Make unsigned macOS validation installers
+        if: runner.os == 'macOS' && github.event_name != 'push'
+        run: pnpm --filter deepseek-harness-electron run ${{ matrix.command }}
+      - name: Make macOS release installers
+        if: runner.os == 'macOS' && github.event_name == 'push'
+        env:
+          DSH_MACOS_SIGN_IDENTITY: ${{ secrets.DSH_MACOS_SIGN_IDENTITY }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: pnpm --filter deepseek-harness-electron run ${{ matrix.command }}
       - name: Map a short Windows build path
         if: runner.os == 'Windows'
@@ -78,3 +133,9 @@ jobs:
           name: ${{ matrix.artifact }}
           path: ${{ matrix.path }}
           if-no-files-found: error
+      - name: Remove the temporary Apple signing keychain
+        if: always() && runner.os == 'macOS'
+        run: |
+          if [[ -n "${DSH_MACOS_KEYCHAIN:-}" ]]; then
+            security delete-keychain "$DSH_MACOS_KEYCHAIN"
+          fi

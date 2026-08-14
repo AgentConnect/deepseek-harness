@@ -3,7 +3,7 @@
   "productName": "DeepSeek Harness",
   "description": "DeepSeek Harness desktop application with AWiki enabled by default",
   "author": "AgentConnect",
-  "version": "0.1.0-rc.5",
+  "version": "0.1.1",
   "private": true,
   "type": "module",
   "main": "lib/main.js",
@@ -13,13 +13,14 @@
   },
   "scripts": {
     "generate-icons": "node scripts/generate-icons.mjs",
-    "start": "pnpm --dir ../.. run build && pnpm run generate-icons && electron-forge start",
-    "start:built": "pnpm run generate-icons && electron-forge start",
+    "verify-main-bundle": "node scripts/verify-main-bundle.mjs",
+    "start": "pnpm --dir ../.. run build && pnpm run verify-main-bundle && pnpm run generate-icons && electron-forge start",
+    "start:built": "pnpm run verify-main-bundle && pnpm run generate-icons && electron-forge start",
     "stage-runtime": "node scripts/stage-runtime.mjs",
-    "package:mac": "pnpm --dir ../.. run build && pnpm run generate-icons && pnpm run stage-runtime && electron-forge package --platform=darwin --arch=arm64",
-    "make:mac": "pnpm --dir ../.. run build && pnpm run generate-icons && pnpm run stage-runtime && electron-forge make --platform=darwin --arch=arm64",
-    "package:windows": "pnpm --dir ../.. run build && pnpm run generate-icons && pnpm run stage-runtime && electron-forge package --platform=win32 --arch=x64",
-    "make:windows": "pnpm --dir ../.. run build && pnpm run generate-icons && pnpm run stage-runtime && electron-forge make --platform=win32 --arch=x64"
+    "package:mac": "pnpm --dir ../.. run build && pnpm run verify-main-bundle && pnpm run generate-icons && pnpm run stage-runtime && electron-forge package --platform=darwin --arch=arm64",
+    "make:mac": "pnpm --dir ../.. run build && pnpm run verify-main-bundle && pnpm run generate-icons && pnpm run stage-runtime && electron-forge make --platform=darwin --arch=arm64",
+    "package:windows": "pnpm --dir ../.. run build && pnpm run verify-main-bundle && pnpm run generate-icons && pnpm run stage-runtime && electron-forge package --platform=win32 --arch=x64",
+    "make:windows": "pnpm --dir ../.. run build && pnpm run verify-main-bundle && pnpm run generate-icons && pnpm run stage-runtime && electron-forge make --platform=win32 --arch=x64"
   },
   "config": {
     "forge": "./forge.config.ts"
