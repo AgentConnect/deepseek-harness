@@ -66,6 +66,9 @@ export function isOwnerAuthorizedRuntime(name: string): boolean {
  * Each entry documents why the store cannot answer.
  */
 const OVERRIDES: Record<string, { license?: string; repo?: string }> = {
+  // Local workspace link points at the public ANP monorepo package, whose
+  // package manifest omits repository-level license metadata.
+  '@anp/typescript-sdk': { license: 'MIT', repo: 'https://github.com/agent-network-protocol/anp' },
   // Rust workspaces publishing npm bins without `license` in package.json.
   'oxlint': { license: 'MIT', repo: 'https://github.com/oxc-project/oxc' },
   'oxlint-tsgolint': { license: 'MIT', repo: 'https://github.com/oxc-project/tsgolint' },
