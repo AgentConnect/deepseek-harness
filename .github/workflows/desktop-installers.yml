@@ -45,8 +45,8 @@ jobs:
           path: deepseek-harness
       - uses: actions/checkout@v4
         with:
-          repository: agent-network-protocol/anp
-          ref: agent/awiki-im-sdk
+          repository: Howe829/AgentConnect
+          ref: 37c7db11c18ec80319bf647a6deec8ef77c63bb5
           path: anp
       - uses: pnpm/action-setup@v4
         with:
