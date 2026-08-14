@@ -2,6 +2,7 @@
 
 import { app, BrowserWindow, dialog, shell } from 'electron'
 import { WebHostProcess } from './host-process.ts'
+import { ensurePackagedRuntime } from './runtime-install.ts'
 import { resolveHostLaunch, resolveWorkspaceRoot } from './runtime.ts'
 
 let host: WebHostProcess | undefined
@@ -48,7 +49,16 @@ async function createWindow(url: string): Promise<void> {
 
 async function start(): Promise<void> {
   if (process.platform === 'win32') app.setAppUserModelId('com.agentconnect.deepseek-harness')
-  const launch = resolveHostLaunch(app.isPackaged, process.resourcesPath, process.execPath, process.env)
+  const runtimeRoot = app.isPackaged
+    ? await ensurePackagedRuntime({
+        resourcesPath: process.resourcesPath,
+        userDataPath: app.getPath('userData'),
+        version: app.getVersion(),
+        platform: process.platform,
+        arch: process.arch,
+      })
+    : process.resourcesPath
+  const launch = resolveHostLaunch(app.isPackaged, runtimeRoot, process.execPath, process.env)
   const cwd = resolveWorkspaceRoot(process.env.DSH_ELECTRON_WORKSPACE, app.getPath('home'))
   host = WebHostProcess.launch({
     ...launch,

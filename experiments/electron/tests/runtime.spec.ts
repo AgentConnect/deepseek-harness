@@ -1,9 +1,11 @@
-import { access, mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
+import { access, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import { create as createTar } from 'tar'
 import { afterEach, describe, expect, it } from 'vitest'
 import { pruneRuntime } from '../scripts/prune-runtime.mjs'
 import { pruneElectronLocales } from '../src/package-prune.ts'
+import { ensurePackagedRuntime } from '../src/runtime-install.ts'
 import { resolveHostLaunch, resolveWorkspaceRoot } from '../src/runtime.ts'
 
 const temporaryDirectories: string[] = []
@@ -16,12 +18,63 @@ describe('Electron runtime resolution', () => {
   it('uses the development and packaged launch contracts', () => {
     expect(resolveHostLaunch(false, '/unused', '/Applications/Harness', { DSH_ELECTRON_NODE: '/opt/node/bin/node' }).command)
       .toBe('/opt/node/bin/node')
-    expect(resolveHostLaunch(true, '/App/Contents/Resources', '/App/Contents/MacOS/deepseek-harness', { KEEP: 'yes' }))
+    expect(resolveHostLaunch(true, '/Users/test/Library/Application Support/DeepSeek Harness/runtime/0.1.0-darwin-arm64', '/App/Contents/MacOS/deepseek-harness', { KEEP: 'yes' }))
       .toEqual({
         command: '/App/Contents/MacOS/deepseek-harness',
-        args: ['--expose-internals', '/App/Contents/Resources/.forge-runtime/node_modules/@deepseek-ai/dsh/lib/bin.js', 'web', '--port', '0'],
+        args: ['--expose-internals', '/Users/test/Library/Application Support/DeepSeek Harness/runtime/0.1.0-darwin-arm64/node_modules/@deepseek-ai/dsh/lib/bin.js', 'web', '--port', '0'],
         env: { KEEP: 'yes', ELECTRON_RUN_AS_NODE: '1' },
       })
+  })
+
+  it('atomically extracts and reuses the packaged runtime archive', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'dsh-electron-runtime-install-'))
+    temporaryDirectories.push(root)
+    const resourcesPath = join(root, 'resources')
+    const archiveSource = join(root, 'archive-source')
+    const userDataPath = join(root, 'user-data')
+    const cli = join(archiveSource, 'node_modules', '@deepseek-ai', 'dsh', 'lib', 'bin.js')
+    await mkdir(resourcesPath, { recursive: true })
+    await mkdir(join(archiveSource, 'node_modules', '@deepseek-ai', 'dsh', 'lib'), { recursive: true })
+    await writeFile(cli, 'packaged-cli', 'utf8')
+    await createTar({
+      cwd: archiveSource,
+      file: join(resourcesPath, '.forge-runtime.tar.gz'),
+      gzip: true,
+      portable: false,
+    }, ['.'])
+
+    const options = { resourcesPath, userDataPath, version: '0.1.0', platform: 'darwin' as const, arch: 'arm64' }
+    const installed = await ensurePackagedRuntime(options)
+    const installedCli = join(installed, 'node_modules', '@deepseek-ai', 'dsh', 'lib', 'bin.js')
+    expect(await readFile(installedCli, 'utf8')).toBe('packaged-cli')
+
+    await writeFile(installedCli, 'reuse-proof', 'utf8')
+    expect(await ensurePackagedRuntime(options)).toBe(installed)
+    expect(await readFile(installedCli, 'utf8')).toBe('reuse-proof')
+  })
+
+  it('rejects an archive that does not contain the DSH CLI', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'dsh-electron-runtime-invalid-'))
+    temporaryDirectories.push(root)
+    const resourcesPath = join(root, 'resources')
+    const archiveSource = join(root, 'archive-source')
+    await mkdir(resourcesPath, { recursive: true })
+    await mkdir(archiveSource, { recursive: true })
+    await writeFile(join(archiveSource, 'not-the-cli.txt'), 'invalid', 'utf8')
+    await createTar({
+      cwd: archiveSource,
+      file: join(resourcesPath, '.forge-runtime.tar.gz'),
+      gzip: true,
+      portable: false,
+    }, ['.'])
+
+    await expect(ensurePackagedRuntime({
+      resourcesPath,
+      userDataPath: join(root, 'user-data'),
+      version: '0.1.0',
+      platform: 'win32',
+      arch: 'x64',
+    })).rejects.toMatchObject({ code: 'ENOENT' })
   })
 
   it('defaults to home and rejects an invalid workspace override', async () => {

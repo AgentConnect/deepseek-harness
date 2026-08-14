@@ -17,19 +17,19 @@ export interface ElectronHostLaunch {
 /**
  * Resolve the Host launcher without inspecting the filesystem.
  * @param packaged - whether Electron is running from an application bundle.
- * @param resourcesPath - Electron resources directory for the packaged runtime.
+ * @param runtimeRoot - extracted packaged runtime root; unused in development.
  * @param electronExecutable - current Electron application executable.
  * @param env - inherited launch environment.
  * @returns executable, arguments, and environment for `dsh web --port 0`.
  */
 export function resolveHostLaunch(
   packaged: boolean,
-  resourcesPath: string,
+  runtimeRoot: string,
   electronExecutable: string,
   env: NodeJS.ProcessEnv,
 ): ElectronHostLaunch {
   const bin = packaged
-    ? join(resourcesPath, '.forge-runtime', 'node_modules', '@deepseek-ai', 'dsh', 'lib', 'bin.js')
+    ? join(runtimeRoot, 'node_modules', '@deepseek-ai', 'dsh', 'lib', 'bin.js')
     : fileURLToPath(new URL('../../../apps/cli/lib/bin.js', import.meta.url))
   return {
     command: packaged ? electronExecutable : (env.DSH_ELECTRON_NODE ?? 'node'),

@@ -11,6 +11,6 @@ pnpm --filter deepseek-harness-electron make:mac
 pnpm --filter deepseek-harness-electron make:windows
 ```
 
-The macOS command produces an arm64 DMG and ZIP. The Windows command produces an x64 Squirrel Setup EXE and must run on Windows. Both commands build DSH, stage the production runtime, rebuild native modules for Electron's ABI, and generate platform icons.
+The macOS command produces an arm64 DMG and ZIP. The Windows command produces an x64 Squirrel Setup EXE and must run on Windows. Both commands build DSH, stage the production runtime, rebuild native modules for Electron's ABI, archive that runtime as one installer-safe resource, and generate platform icons. On first launch the shell atomically extracts the versioned runtime under Electron's user-data directory and reuses it on subsequent launches.
 
 The current installers are unsigned. macOS notarization, Windows code signing, automatic updates, crash reporting, and replacing the loopback transport with a scoped IPC carrier remain release-hardening work.

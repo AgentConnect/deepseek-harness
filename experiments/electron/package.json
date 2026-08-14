@@ -8,6 +8,9 @@
   "type": "module",
   "main": "lib/main.js",
   "license": "MIT",
+  "dependencies": {
+    "tar": "7.5.22"
+  },
   "scripts": {
     "generate-icons": "node scripts/generate-icons.mjs",
     "start": "pnpm --dir ../.. run build && pnpm run generate-icons && electron-forge start",
