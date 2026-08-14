@@ -10,7 +10,7 @@ const config: ForgeConfig = {
     icon: 'assets/icon',
     asar: true,
     prune: false,
-    extraResource: ['.forge-runtime'],
+    extraResource: ['.forge-runtime.tar.gz'],
     afterExtract: [(
       buildPath,
       _electronVersion,
@@ -22,7 +22,7 @@ const config: ForgeConfig = {
     }],
     ignore: [
       /[/\\](?:node_modules|src|tests|scripts|out)(?:[/\\]|$)/u,
-      /[/\\]\.forge-runtime(?:[/\\]|$)/u,
+      /[/\\]\.forge-runtime\.tar\.gz$/u,
     ],
   },
   makers: [

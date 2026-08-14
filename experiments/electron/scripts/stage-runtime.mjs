@@ -9,13 +9,14 @@ import { tmpdir } from 'node:os'
 import { dirname, join, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { promisify } from 'node:util'
+import { create as createTar } from 'tar'
 import { pruneRuntime } from './prune-runtime.mjs'
 
 const exec = promisify(execFile)
 const EXEC_MAX_BUFFER = 16 * 1024 * 1024
 const appRoot = fileURLToPath(new URL('..', import.meta.url))
 const repositoryRoot = fileURLToPath(new URL('../../..', import.meta.url))
-const target = join(appRoot, '.forge-runtime')
+const target = join(appRoot, '.forge-runtime.tar.gz')
 const npmExecPath = process.env.npm_execpath
 if (npmExecPath === undefined) throw new Error('stage-runtime: npm_execpath is unavailable; run this script through pnpm')
 const stagingRoot = await mkdtemp(join(tmpdir(), 'dsh-electron-runtime-'))
@@ -101,8 +102,8 @@ try {
     maxBuffer: EXEC_MAX_BUFFER,
   })
   await pruneRuntime(stagedTarget, process.platform, process.arch)
-  await rm(target, { recursive: true, force: true })
-  await cp(stagedTarget, target, { recursive: true, force: true, preserveTimestamps: true })
+  await rm(target, { force: true })
+  await createTar({ cwd: stagedTarget, file: target, gzip: true, portable: false }, ['.'])
 } finally {
   await rm(stagingRoot, { recursive: true, force: true })
   await exec(process.execPath, [npmExecPath, '--dir', repositoryRoot, 'install', '--frozen-lockfile'], {

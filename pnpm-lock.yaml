@@ -750,6 +750,10 @@ importers:
         version: link:../packages/workflow/workflow-worker-thread
 
   experiments/electron:
+    dependencies:
+      tar:
+        specifier: 7.5.22
+        version: 7.5.22
     devDependencies:
       '@electron-forge/cli':
         specifier: 7.11.2
