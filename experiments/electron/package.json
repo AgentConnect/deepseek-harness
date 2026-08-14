@@ -1,0 +1,39 @@
+{
+  "name": "deepseek-harness-electron",
+  "productName": "DeepSeek Harness",
+  "description": "DeepSeek Harness desktop application with AWiki enabled by default",
+  "author": "AgentConnect",
+  "version": "0.1.0-rc.5",
+  "private": true,
+  "type": "module",
+  "main": "lib/main.js",
+  "license": "MIT",
+  "scripts": {
+    "generate-icons": "node scripts/generate-icons.mjs",
+    "start": "pnpm --dir ../.. run build && pnpm run generate-icons && electron-forge start",
+    "start:built": "pnpm run generate-icons && electron-forge start",
+    "stage-runtime": "node scripts/stage-runtime.mjs",
+    "package:mac": "pnpm --dir ../.. run build && pnpm run generate-icons && pnpm run stage-runtime && electron-forge package --platform=darwin --arch=arm64",
+    "make:mac": "pnpm --dir ../.. run build && pnpm run generate-icons && pnpm run stage-runtime && electron-forge make --platform=darwin --arch=arm64",
+    "package:windows": "pnpm --dir ../.. run build && pnpm run generate-icons && pnpm run stage-runtime && electron-forge package --platform=win32 --arch=x64",
+    "make:windows": "pnpm --dir ../.. run build && pnpm run generate-icons && pnpm run stage-runtime && electron-forge make --platform=win32 --arch=x64"
+  },
+  "config": {
+    "forge": "./forge.config.ts"
+  },
+  "devDependencies": {
+    "@electron-forge/cli": "7.11.2",
+    "@electron-forge/maker-dmg": "7.11.2",
+    "@electron-forge/maker-squirrel": "7.11.2",
+    "@electron-forge/maker-zip": "7.11.2",
+    "@electron-forge/shared-types": "7.11.2",
+    "@electron/rebuild": "4.2.0",
+    "electron": "43.4.0",
+    "node-gyp": "12.4.0",
+    "png-to-ico": "3.0.1",
+    "sharp": "0.35.3"
+  },
+  "optionalDependencies": {
+    "macos-alias": "0.2.12"
+  }
+}
