@@ -1,5 +1,5 @@
 import { execFile } from 'node:child_process'
-import { mkdtemp, readdir, rm } from 'node:fs/promises'
+import { access, mkdtemp, readdir, rm, stat } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { promisify } from 'node:util'
@@ -18,12 +18,20 @@ export async function findDmgs(root) {
   return matches.sort()
 }
 
+/** @param {string} mountPoint @returns {Promise<void>} */
+export async function validateMountedDmg(mountPoint) {
+  await access(join(mountPoint, '.VolumeIcon.icns'))
+  const app = await stat(join(mountPoint, 'DeepSeek Harness.app'))
+  if (!app.isDirectory()) throw new Error('Mounted DMG application bundle is not a directory')
+}
+
 /**
  * @param {{
  *   root: string,
  *   environment?: NodeJS.ProcessEnv,
  *   platform?: NodeJS.Platform,
  *   run?: (file: string, args: string[]) => Promise<unknown>,
+ *   inspectMount?: (mountPoint: string) => Promise<void>,
  * }} options
  * @returns {Promise<string[]>}
  */
@@ -32,6 +40,7 @@ export async function notarizeMacDmgs({
   environment = process.env,
   platform = process.platform,
   run = exec,
+  inspectMount = validateMountedDmg,
 }) {
   if (platform !== 'darwin') return []
 
@@ -67,8 +76,7 @@ export async function notarizeMacDmgs({
     try {
       await run('hdiutil', ['attach', '-nobrowse', '-readonly', '-mountpoint', mountPoint, dmg])
       mounted = true
-      await run('/usr/bin/test', ['-e', join(mountPoint, '.VolumeIcon.icns')])
-      await run('/usr/bin/test', ['-d', join(mountPoint, 'DeepSeek Harness.app')])
+      await inspectMount(mountPoint)
     } finally {
       if (mounted) await run('hdiutil', ['detach', mountPoint])
       await rm(mountPoint, { recursive: true, force: true })
