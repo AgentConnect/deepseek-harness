@@ -89,15 +89,10 @@ jobs:
           APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: |
-          configured=0
           missing=0
           for name in MACOS_CERTIFICATE_P12_BASE64 MACOS_CERTIFICATE_PASSWORD DSH_MACOS_SIGN_IDENTITY APPLE_ID APPLE_APP_SPECIFIC_PASSWORD APPLE_TEAM_ID; do
-            if [[ -n "${!name}" ]]; then configured=1; else missing=1; fi
+            if [[ -z "${!name}" ]]; then missing=1; fi
           done
-          if [[ "$configured" == 0 ]]; then
-            echo 'Apple distribution credentials are not configured; producing an unsigned validation artifact.'
-            exit 0
-          fi
           if [[ "$missing" == 1 ]]; then
             echo 'Apple distribution credentials are incomplete.' >&2
             exit 1
@@ -124,11 +119,19 @@ jobs:
       - name: Make macOS release installers
         if: runner.os == 'macOS' && github.event_name == 'push'
         env:
+          DSH_REQUIRE_MACOS_SIGNING: 1
           DSH_MACOS_SIGN_IDENTITY: ${{ secrets.DSH_MACOS_SIGN_IDENTITY }}
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: pnpm --filter deepseek-harness-electron run ${{ matrix.command }}
+      - name: Notarize and staple macOS DMG containers
+        if: runner.os == 'macOS' && github.event_name == 'push'
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: pnpm --filter deepseek-harness-electron run notarize:mac:dmgs
       - name: Map a short Windows build path
         if: runner.os == 'Windows'
         working-directory: ${{ github.workspace }}
