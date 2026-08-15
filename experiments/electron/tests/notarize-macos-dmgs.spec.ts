@@ -2,7 +2,7 @@ import { mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
-import { findDmgs, notarizeMacDmgs } from '../scripts/notarize-macos-dmgs.mjs'
+import { findDmgs, notarizeMacDmgs, validateMountedDmg } from '../scripts/notarize-macos-dmgs.mjs'
 
 const temporaryDirectories: string[] = []
 
@@ -26,15 +26,18 @@ describe('macOS DMG notarization', () => {
   it('submits, staples, verifies, and mounts every final DMG container', async () => {
     const { root, first, second } = await createFixture()
     const calls: Array<{ file: string, args: string[] }> = []
+    const inspectedMounts: string[] = []
     const environment = {
       APPLE_ID: 'release@example.com',
       APPLE_APP_SPECIFIC_PASSWORD: 'app-password',
       APPLE_TEAM_ID: 'TEAM123456',
     }
     const run = async (file: string, args: string[]) => { calls.push({ file, args }) }
+    const inspectMount = async (mountPoint: string) => { inspectedMounts.push(mountPoint) }
 
     expect(await findDmgs(root)).toEqual([first, second])
-    await expect(notarizeMacDmgs({ root, platform: 'darwin', environment, run })).resolves.toEqual([first, second])
+    await expect(notarizeMacDmgs({ root, platform: 'darwin', environment, run, inspectMount }))
+      .resolves.toEqual([first, second])
 
     for (const dmg of [first, second]) {
       expect(calls).toContainEqual({
@@ -57,10 +60,24 @@ describe('macOS DMG notarization', () => {
       expect(attach).toBeDefined()
       const mountPoint = attach?.args.at(-2)
       expect(mountPoint).toBeTruthy()
-      expect(calls).toContainEqual({ file: '/usr/bin/test', args: ['-e', join(mountPoint!, '.VolumeIcon.icns')] })
-      expect(calls).toContainEqual({ file: '/usr/bin/test', args: ['-d', join(mountPoint!, 'DeepSeek Harness.app')] })
+      expect(inspectedMounts).toContain(mountPoint)
       expect(calls).toContainEqual({ file: 'hdiutil', args: ['detach', mountPoint!] })
     }
+  })
+
+  it('requires the mounted product icon and an application bundle directory', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'dsh-mounted-dmg-test-'))
+    temporaryDirectories.push(root)
+    await writeFile(join(root, '.VolumeIcon.icns'), 'icon')
+    await mkdir(join(root, 'DeepSeek Harness.app'))
+    await expect(validateMountedDmg(root)).resolves.toBeUndefined()
+
+    await rm(join(root, '.VolumeIcon.icns'))
+    await expect(validateMountedDmg(root)).rejects.toMatchObject({ code: 'ENOENT' })
+    await writeFile(join(root, '.VolumeIcon.icns'), 'icon')
+    await rm(join(root, 'DeepSeek Harness.app'), { recursive: true })
+    await writeFile(join(root, 'DeepSeek Harness.app'), 'not-a-directory')
+    await expect(validateMountedDmg(root)).rejects.toThrow('application bundle is not a directory')
   })
 
   it('fails before submission when credentials or DMG output are missing', async () => {
