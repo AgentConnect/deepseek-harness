@@ -11,6 +11,7 @@ import { fileURLToPath } from 'node:url'
 import { promisify } from 'node:util'
 import { create as createTar } from 'tar'
 import { pruneRuntime } from './prune-runtime.mjs'
+import { signMacRuntime } from './sign-macos-runtime.mjs'
 
 const exec = promisify(execFile)
 const EXEC_MAX_BUFFER = 16 * 1024 * 1024
@@ -102,6 +103,7 @@ try {
     maxBuffer: EXEC_MAX_BUFFER,
   })
   await pruneRuntime(stagedTarget, process.platform, process.arch)
+  await signMacRuntime({ root: stagedTarget })
   await rm(target, { force: true })
   await createTar({ cwd: stagedTarget, file: target, gzip: true, portable: false }, ['.'])
 } finally {
