@@ -19,6 +19,8 @@
     "stage-runtime": "node scripts/stage-runtime.mjs",
     "package:mac": "pnpm --dir ../.. run build && pnpm run verify-main-bundle && pnpm run generate-icons && pnpm run stage-runtime && electron-forge package --platform=darwin --arch=arm64",
     "make:mac": "pnpm --dir ../.. run build && pnpm run verify-main-bundle && pnpm run generate-icons && pnpm run stage-runtime && electron-forge make --platform=darwin --arch=arm64",
+    "package:mac:x64": "pnpm --dir ../.. run build && pnpm run verify-main-bundle && pnpm run generate-icons && pnpm run stage-runtime && electron-forge package --platform=darwin --arch=x64",
+    "make:mac:x64": "pnpm --dir ../.. run build && pnpm run verify-main-bundle && pnpm run generate-icons && pnpm run stage-runtime && electron-forge make --platform=darwin --arch=x64",
     "package:windows": "pnpm --dir ../.. run build && pnpm run verify-main-bundle && pnpm run generate-icons && pnpm run stage-runtime && electron-forge package --platform=win32 --arch=x64",
     "make:windows": "pnpm --dir ../.. run build && pnpm run verify-main-bundle && pnpm run generate-icons && pnpm run stage-runtime && electron-forge make --platform=win32 --arch=x64"
   },
