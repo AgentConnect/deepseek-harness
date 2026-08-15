@@ -2,5 +2,5 @@
 # side as of the last confirmed-consistent state. Both languages carry equal authority;
 # after editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/architecture/2026-08-15-awiki-electron-distribution.md
-2026-08-15-awiki-electron-distribution.md: 4c3bea8e1dd81121bfa1c35175553623e46ffa38
-2026-08-15-awiki-electron-distribution.zh.md: 44869749018537a0999c88a1e8f513d439d25ea5
+2026-08-15-awiki-electron-distribution.md: 11b61e20bec4626c22782709f55143750dd23e6e
+2026-08-15-awiki-electron-distribution.zh.md: 3a564e315bf446a0cba447bfcf0b853b8e54fd99
