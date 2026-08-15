@@ -1,5 +1,6 @@
 import { execFile } from 'node:child_process'
-import { readdir } from 'node:fs/promises'
+import { mkdtemp, readdir, rm } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { promisify } from 'node:util'
 
@@ -59,6 +60,19 @@ export async function notarizeMacDmgs({
     await run('xcrun', ['stapler', 'validate', dmg])
     await run('codesign', ['--verify', '--check-notarization', '--verbose=2', dmg])
     await run('spctl', ['--assess', '--type', 'install', '--verbose=2', dmg])
+    await run('hdiutil', ['verify', dmg])
+
+    const mountPoint = await mkdtemp(join(tmpdir(), 'dsh-notarized-dmg-'))
+    let mounted = false
+    try {
+      await run('hdiutil', ['attach', '-nobrowse', '-readonly', '-mountpoint', mountPoint, dmg])
+      mounted = true
+      await run('/usr/bin/test', ['-e', join(mountPoint, '.VolumeIcon.icns')])
+      await run('/usr/bin/test', ['-d', join(mountPoint, 'DeepSeek Harness.app')])
+    } finally {
+      if (mounted) await run('hdiutil', ['detach', mountPoint])
+      await rm(mountPoint, { recursive: true, force: true })
+    }
   }
   return dmgs
 }

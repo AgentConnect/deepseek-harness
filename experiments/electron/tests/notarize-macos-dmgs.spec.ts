@@ -23,7 +23,7 @@ afterEach(async () => {
 })
 
 describe('macOS DMG notarization', () => {
-  it('submits, staples, and verifies every final DMG container', async () => {
+  it('submits, staples, verifies, and mounts every final DMG container', async () => {
     const { root, first, second } = await createFixture()
     const calls: Array<{ file: string, args: string[] }> = []
     const environment = {
@@ -51,6 +51,15 @@ describe('macOS DMG notarization', () => {
       expect(calls).toContainEqual({ file: 'xcrun', args: ['stapler', 'validate', dmg] })
       expect(calls).toContainEqual({ file: 'codesign', args: ['--verify', '--check-notarization', '--verbose=2', dmg] })
       expect(calls).toContainEqual({ file: 'spctl', args: ['--assess', '--type', 'install', '--verbose=2', dmg] })
+      expect(calls).toContainEqual({ file: 'hdiutil', args: ['verify', dmg] })
+
+      const attach = calls.find(call => call.file === 'hdiutil' && call.args.at(-1) === dmg && call.args[0] === 'attach')
+      expect(attach).toBeDefined()
+      const mountPoint = attach?.args.at(-2)
+      expect(mountPoint).toBeTruthy()
+      expect(calls).toContainEqual({ file: '/usr/bin/test', args: ['-e', join(mountPoint!, '.VolumeIcon.icns')] })
+      expect(calls).toContainEqual({ file: '/usr/bin/test', args: ['-d', join(mountPoint!, 'DeepSeek Harness.app')] })
+      expect(calls).toContainEqual({ file: 'hdiutil', args: ['detach', mountPoint!] })
     }
   })
 
