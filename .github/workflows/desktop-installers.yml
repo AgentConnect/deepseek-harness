@@ -44,6 +44,12 @@ jobs:
             path: |
               h/experiments/electron/out/make/**/*.dmg
               h/experiments/electron/out/make/**/*.zip
+          - runner: macos-15-intel
+            command: make:mac:x64
+            artifact: deepseek-harness-macos-x64
+            path: |
+              h/experiments/electron/out/make/**/*.dmg
+              h/experiments/electron/out/make/**/*.zip
           - runner: windows-latest
             command: make:windows
             artifact: deepseek-harness-windows-x64
