@@ -103,8 +103,13 @@ jobs:
           security create-keychain -p "$keychain_password" "$keychain_path"
           security set-keychain-settings -lut 21600 "$keychain_path"
           security unlock-keychain -p "$keychain_password" "$keychain_path"
-          security import "$certificate_path" -P "$MACOS_CERTIFICATE_PASSWORD" -T /usr/bin/codesign -t cert -f pkcs12 -k "$keychain_path"
+          security import "$certificate_path" -P "$MACOS_CERTIFICATE_PASSWORD" -A -t cert -f pkcs12 -k "$keychain_path"
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$keychain_password" "$keychain_path"
+          security list-keychain -d user -s "$keychain_path"
+          if ! security find-identity -v -p codesigning "$keychain_path" | grep -Fq "\"$DSH_MACOS_SIGN_IDENTITY\""; then
+            echo 'Configured Developer ID Application identity was not imported into the temporary keychain.' >&2
+            exit 1
+          fi
           rm -f "$certificate_path"
           echo "DSH_MACOS_KEYCHAIN=$keychain_path" >> "$GITHUB_ENV"
       - name: Make unsigned macOS validation installers
