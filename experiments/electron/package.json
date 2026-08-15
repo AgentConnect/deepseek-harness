@@ -17,6 +17,7 @@
     "start": "pnpm --dir ../.. run build && pnpm run verify-main-bundle && pnpm run generate-icons && electron-forge start",
     "start:built": "pnpm run verify-main-bundle && pnpm run generate-icons && electron-forge start",
     "stage-runtime": "node scripts/stage-runtime.mjs",
+    "notarize:mac:dmgs": "node scripts/notarize-macos-dmgs.mjs out/make",
     "package:mac": "pnpm --dir ../.. run build && pnpm run verify-main-bundle && pnpm run generate-icons && pnpm run stage-runtime && electron-forge package --platform=darwin --arch=arm64",
     "make:mac": "pnpm --dir ../.. run build && pnpm run verify-main-bundle && pnpm run generate-icons && pnpm run stage-runtime && electron-forge make --platform=darwin --arch=arm64",
     "package:mac:x64": "pnpm --dir ../.. run build && pnpm run verify-main-bundle && pnpm run generate-icons && pnpm run stage-runtime && electron-forge package --platform=darwin --arch=x64",
