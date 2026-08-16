@@ -73,7 +73,16 @@ function sdkFixture(): SdkFixture {
     lastDownload: undefined,
     disposed: 0,
   }
+  const currentSdkMethods = {
+    updateDisplayName: () => Promise.resolve(SDK_IDENTITY),
+    resolvePeer: () => Promise.resolve({
+      did: 'did:wba:bob.example' as never,
+      conversationId: 'conversation-bob' as never,
+    }),
+    markConversationRead: () => Promise.resolve(0),
+  }
   const client: AwikiImClient = {
+    ...currentSdkMethods,
     getIdentity: () => Promise.resolve(fixture.identity),
     sendRegistrationOtp: (request) => {
       fixture.lastOtp = request
