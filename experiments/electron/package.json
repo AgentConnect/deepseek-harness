@@ -22,8 +22,8 @@
     "make:mac": "pnpm --dir ../.. run build && pnpm run verify-main-bundle && pnpm run generate-icons && pnpm run stage-runtime && electron-forge make --platform=darwin --arch=arm64",
     "package:mac:x64": "pnpm --dir ../.. run build && pnpm run verify-main-bundle && pnpm run generate-icons && pnpm run stage-runtime && electron-forge package --platform=darwin --arch=x64",
     "make:mac:x64": "pnpm --dir ../.. run build && pnpm run verify-main-bundle && pnpm run generate-icons && pnpm run stage-runtime && electron-forge make --platform=darwin --arch=x64",
-    "package:windows": "pnpm --dir ../.. run build && pnpm run verify-main-bundle && pnpm run generate-icons && pnpm run stage-runtime && electron-forge package --platform=win32 --arch=x64",
-    "make:windows": "pnpm --dir ../.. run build && pnpm run verify-main-bundle && pnpm run generate-icons && pnpm run stage-runtime && electron-forge make --platform=win32 --arch=x64"
+    "package:windows": "pnpm --dir ../.. run build && pnpm run verify-main-bundle && pnpm run generate-icons && pnpm run stage-runtime && electron-builder --win dir --x64",
+    "make:windows": "pnpm --dir ../.. run build && pnpm run verify-main-bundle && pnpm run generate-icons && pnpm run stage-runtime && electron-builder --win nsis --x64"
   },
   "config": {
     "forge": "./forge.config.ts"
@@ -31,16 +31,58 @@
   "devDependencies": {
     "@electron-forge/cli": "7.11.2",
     "@electron-forge/maker-dmg": "7.11.2",
-    "@electron-forge/maker-squirrel": "7.11.2",
     "@electron-forge/maker-zip": "7.11.2",
     "@electron-forge/shared-types": "7.11.2",
     "@electron/rebuild": "4.2.0",
     "electron": "43.4.0",
+    "electron-builder": "26.15.3",
     "node-gyp": "12.4.0",
     "png-to-ico": "3.0.1",
     "sharp": "0.35.3"
   },
   "optionalDependencies": {
     "macos-alias": "0.2.12"
+  },
+  "build": {
+    "appId": "com.agentconnect.deepseek-harness",
+    "productName": "DeepSeek Harness",
+    "asar": true,
+    "directories": {
+      "output": "out/make"
+    },
+    "files": [
+      "lib/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": ".forge-runtime.tar.gz",
+        "to": ".forge-runtime.tar.gz"
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "assets/icon.ico",
+      "executableName": "DeepSeek Harness"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "DeepSeek Harness",
+      "installerIcon": "assets/icon.ico",
+      "uninstallerIcon": "assets/icon.ico",
+      "installerHeaderIcon": "assets/icon.ico",
+      "artifactName": "DeepSeek-Harness-Setup-${version}.${ext}",
+      "runAfterFinish": true
+    }
   }
 }

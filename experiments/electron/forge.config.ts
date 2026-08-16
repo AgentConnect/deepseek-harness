@@ -45,15 +45,6 @@ export function createForgeConfig(environment: NodeJS.ProcessEnv): ForgeConfig {
         platforms: ['darwin'],
         config: {},
       },
-      {
-        name: '@electron-forge/maker-squirrel',
-        platforms: ['win32'],
-        config: {
-          name: 'DeepSeekHarness',
-          setupExe: 'DeepSeek-Harness-Setup.exe',
-          setupIcon: 'assets/icon.ico',
-        },
-      },
     ],
     outDir: 'out',
   }

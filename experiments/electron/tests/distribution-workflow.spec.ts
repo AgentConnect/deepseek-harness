@@ -5,6 +5,7 @@ import { describe, expect, it } from 'vitest'
 interface DesktopInstallerMatrixEntry {
   artifact: string
   command: string
+  path: string
   runner: string
 }
 
@@ -22,7 +23,13 @@ interface DesktopInstallerWorkflow {
 
 const electronManifest = JSON.parse(
   readFileSync(new URL('../package.json', import.meta.url), 'utf8'),
-) as { scripts: Record<string, string> }
+) as {
+  build: {
+    nsis: Record<string, boolean | string>
+    win: { icon: string }
+  }
+  scripts: Record<string, string>
+}
 const workflow = load(
   readFileSync(new URL('../../../.github/workflows/desktop-installers.yml', import.meta.url), 'utf8'),
 ) as DesktopInstallerWorkflow
@@ -47,5 +54,23 @@ describe('desktop installer architecture matrix', () => {
         artifact: 'deepseek-harness-macos-x64',
       }),
     ]))
+  })
+
+  it('builds a guided Windows installer with product shortcuts', () => {
+    const entries = workflow.jobs?.build?.strategy?.matrix?.include
+    expect(entries).toContainEqual(expect.objectContaining({
+      runner: 'windows-latest',
+      command: 'make:windows',
+      artifact: 'deepseek-harness-windows-x64',
+      path: 'h/experiments/electron/out/make/*.exe',
+    }))
+    expect(electronManifest.scripts['make:windows']).toContain('electron-builder --win nsis --x64')
+    expect(electronManifest.build.win.icon).toBe('assets/icon.ico')
+    expect(electronManifest.build.nsis).toMatchObject({
+      oneClick: false,
+      allowToChangeInstallationDirectory: true,
+      createDesktopShortcut: true,
+      createStartMenuShortcut: true,
+    })
   })
 })

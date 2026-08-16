@@ -75,7 +75,7 @@
     "@deepseek-ai/dsh-tool-web": "workspace:^",
     "@deepseek-ai/dsh-tool-workflow": "workspace:^",
     "@deepseek-ai/dsh-web-app": "workspace:^",
-    "dsh-awiki": "github:AgentConnect/dsh-awiki#v0.1.1",
+    "dsh-awiki": "https://github.com/AgentConnect/dsh-awiki/releases/download/v0.1.3/dsh-awiki-0.1.3.tgz",
     "@deepseek-ai/dsh-workflow-worker-thread": "workspace:^",
     "@deepseek-ai/dsh-agent-instructions": "workspace:^",
     "commander": "^15.0.0",

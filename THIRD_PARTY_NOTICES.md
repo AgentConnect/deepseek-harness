@@ -126,7 +126,6 @@ External packages **directly declared** only by repository tooling, test infrast
 | [`@braintree/sanitize-url`](https://github.com/braintree/sanitize-url) | MIT |
 | [`@electron-forge/cli`](https://github.com/electron/forge) | MIT |
 | [`@electron-forge/maker-dmg`](https://github.com/electron/forge) | MIT |
-| [`@electron-forge/maker-squirrel`](https://github.com/electron/forge) | MIT |
 | [`@electron-forge/maker-zip`](https://github.com/electron/forge) | MIT |
 | [`@electron-forge/shared-types`](https://github.com/electron/forge) | MIT |
 | [`@electron/rebuild`](https://github.com/electron/rebuild) | MIT |
@@ -154,6 +153,7 @@ External packages **directly declared** only by repository tooling, test infrast
 | [`dayjs`](https://github.com/iamkun/dayjs) | MIT |
 | [`debug`](https://github.com/visionmedia/debug) | MIT |
 | [`electron`](https://github.com/electron/electron) | MIT |
+| [`electron-builder`](https://github.com/electron-userland/electron-builder) | MIT |
 | [`esbuild`](https://github.com/evanw/esbuild) | MIT |
 | [`eslint-plugin-sonarjs`](https://github.com/SonarSource/SonarJS) | LGPL-3.0-only |
 | [`execa`](https://github.com/sindresorhus/execa) | MIT |

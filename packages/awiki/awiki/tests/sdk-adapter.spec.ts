@@ -83,11 +83,6 @@ function sdkFixture(): SdkFixture {
       fixture.lastRegistration = request
       return Promise.resolve(SDK_IDENTITY)
     },
-    updateDisplayName: () => Promise.resolve(SDK_IDENTITY),
-    resolvePeer: () => Promise.resolve({
-      did: 'did:wba:bob.example' as never,
-      conversationId: 'conversation-bob' as never,
-    }),
     listConversations: (request) => {
       fixture.lastList = request
       return Promise.resolve({
@@ -104,7 +99,6 @@ function sdkFixture(): SdkFixture {
         hasMore: fixture.historyCursor !== undefined,
       } satisfies SdkPage<SdkMessage>)
     },
-    markConversationRead: () => Promise.resolve(0),
     sendText: (request) => {
       fixture.lastText = request
       return Promise.resolve(fixture.sentMessage)
