@@ -53,7 +53,7 @@ jobs:
           - runner: windows-latest
             command: make:windows
             artifact: deepseek-harness-windows-x64
-            path: h/experiments/electron/out/make/**/*.exe
+            path: h/experiments/electron/out/make/*.exe
     runs-on: ${{ matrix.runner }}
     defaults:
       run:
@@ -142,11 +142,43 @@ jobs:
         working-directory: W:\h
         shell: pwsh
         run: pnpm --filter deepseek-harness-electron run ${{ matrix.command }}
+      - name: Verify Windows installer artifact
+        if: runner.os == 'Windows'
+        working-directory: W:\h
+        shell: pwsh
+        run: |
+          pnpm exec vitest run experiments/electron/tests/distribution-workflow.spec.ts
+          $installers = @(Get-ChildItem experiments/electron/out/make -File -Filter 'DeepSeek-Harness-Setup-*.exe')
+          if ($installers.Count -ne 1) {
+            throw "Expected one Windows installer, found $($installers.Count)."
+          }
+          $cliManifest = Get-Content apps/cli/package.json -Raw | ConvertFrom-Json
+          if ($cliManifest.dependencies.'dsh-awiki' -notmatch '/v(?<version>\d+\.\d+\.\d+)/') {
+            throw 'Could not determine the expected dsh-awiki version from apps/cli/package.json.'
+          }
+          $expectedAwikiVersion = $Matches.version
+          $runtimeManifestJson = tar -xOf experiments/electron/.forge-runtime.tar.gz ./node_modules/dsh-awiki/package.json
+          $runtimeManifest = $runtimeManifestJson -join "`n" | ConvertFrom-Json
+          if ($runtimeManifest.version -ne $expectedAwikiVersion) {
+            throw "Packaged dsh-awiki version $($runtimeManifest.version) does not match $expectedAwikiVersion."
+          }
+          $installer = $installers[0]
+          $hash = Get-FileHash $installer.FullName -Algorithm SHA256
+          @(
+            '### Windows installer'
+            ''
+            "- File: ``$($installer.Name)``"
+            "- Size: ``$($installer.Length) bytes``"
+            "- SHA-256: ``$($hash.Hash)``"
+            "- Bundled dsh-awiki: ``$($runtimeManifest.version)``"
+          ) | Add-Content $env:GITHUB_STEP_SUMMARY
       - uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact }}
           path: ${{ matrix.path }}
           if-no-files-found: error
+          compression-level: 0
+          retention-days: 14
       - name: Remove the temporary Apple signing keychain
         if: always() && runner.os == 'macOS'
         run: |
