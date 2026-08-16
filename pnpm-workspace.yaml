@@ -38,6 +38,7 @@ overrides:
   '@deepseek-ai/cosmokit': 'link:vendor/cosmokit'
   '@deepseek-ai/schemastery': 'link:vendor/schemastery'
   '@electron/rebuild': '4.2.0'
+  'app-builder-lib@26.15.3>@electron/get': '5.1.0'
 
 peerDependencyRules:
   allowedVersions:
