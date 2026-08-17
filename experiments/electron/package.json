@@ -14,6 +14,7 @@
   "scripts": {
     "generate-icons": "node scripts/generate-icons.mjs",
     "verify-main-bundle": "node scripts/verify-main-bundle.mjs",
+    "start:dev": "node scripts/start-dev.mjs",
     "start": "pnpm --dir ../.. run build && pnpm run verify-main-bundle && pnpm run generate-icons && electron-forge start",
     "start:built": "pnpm run verify-main-bundle && pnpm run generate-icons && electron-forge start",
     "stage-runtime": "node scripts/stage-runtime.mjs",
