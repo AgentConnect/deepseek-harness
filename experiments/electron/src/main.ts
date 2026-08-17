@@ -3,7 +3,9 @@
 import { app, BrowserWindow, dialog, shell } from 'electron'
 import { WebHostProcess } from './host-process.ts'
 import { ensurePackagedRuntime } from './runtime-install.ts'
-import { resolveHostLaunch, resolveWorkspaceRoot } from './runtime.ts'
+import { configureElectronStateRoot, resolveHostLaunch, resolveWorkspaceRoot } from './runtime.ts'
+
+configureElectronStateRoot(process.env.DSH_ELECTRON_USER_DATA, app)
 
 let host: WebHostProcess | undefined
 let readyUrl: string | undefined

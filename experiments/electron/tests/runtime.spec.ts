@@ -6,7 +6,7 @@ import { afterEach, describe, expect, it } from 'vitest'
 import { pruneRuntime } from '../scripts/prune-runtime.mjs'
 import { pruneElectronLocales } from '../src/package-prune.ts'
 import { ensurePackagedRuntime } from '../src/runtime-install.ts'
-import { resolveHostLaunch, resolveWorkspaceRoot } from '../src/runtime.ts'
+import { configureElectronStateRoot, resolveHostLaunch, resolveWorkspaceRoot } from '../src/runtime.ts'
 
 const temporaryDirectories: string[] = []
 
@@ -15,6 +15,28 @@ afterEach(async () => {
 })
 
 describe('Electron runtime resolution', () => {
+  it('isolates Electron-owned state only for an absolute development override', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'dsh-electron-state-'))
+    temporaryDirectories.push(root)
+    const stateRoot = join(root, 'nested', 'electron')
+    const assignments: Array<[string, string]> = []
+    const registry = {
+      setPath: (name: 'userData' | 'sessionData', path: string) => { assignments.push([name, path]) },
+    }
+
+    expect(configureElectronStateRoot(undefined, registry)).toBeUndefined()
+    expect(configureElectronStateRoot('', registry)).toBeUndefined()
+    expect(assignments).toEqual([])
+    expect(() => configureElectronStateRoot('relative/state', registry)).toThrow('user-data directory must be an absolute path')
+
+    expect(configureElectronStateRoot(stateRoot, registry)).toBe(stateRoot)
+    await expect(access(stateRoot)).resolves.toBeUndefined()
+    expect(assignments).toEqual([
+      ['userData', stateRoot],
+      ['sessionData', stateRoot],
+    ])
+  })
+
   it('uses the development and packaged launch contracts', () => {
     expect(resolveHostLaunch(false, '/unused', '/Applications/Harness', { DSH_ELECTRON_NODE: '/opt/node/bin/node' }).command)
       .toBe('/opt/node/bin/node')

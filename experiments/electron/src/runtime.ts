@@ -1,6 +1,6 @@
 /** Resolve development and packaged DSH Host launch inputs. */
 
-import { statSync } from 'node:fs'
+import { mkdirSync, statSync } from 'node:fs'
 import { isAbsolute, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -12,6 +12,32 @@ export interface ElectronHostLaunch {
   args: string[]
   /** Environment including Electron's Node mode when packaged. */
   env: NodeJS.ProcessEnv
+}
+
+/** Minimal Electron path API used before the application becomes ready. */
+export interface ElectronPathRegistry {
+  setPath(name: 'userData' | 'sessionData', path: string): void
+}
+
+/**
+ * Move Electron-owned development state away from an installed application.
+ * Production launches omit the override and retain Electron's default paths.
+ * @param configured - optional `DSH_ELECTRON_USER_DATA` value.
+ * @param registry - Electron application path registry.
+ * @returns the configured absolute directory, or undefined when unchanged.
+ */
+export function configureElectronStateRoot(
+  configured: string | undefined,
+  registry: ElectronPathRegistry,
+): string | undefined {
+  if (configured === undefined || configured.length === 0) return undefined
+  if (!isAbsolute(configured)) {
+    throw new Error(`dsh Electron: user-data directory must be an absolute path, got ${JSON.stringify(configured)}`)
+  }
+  mkdirSync(configured, { recursive: true })
+  registry.setPath('userData', configured)
+  registry.setPath('sessionData', configured)
+  return configured
 }
 
 /**
