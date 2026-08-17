@@ -1,13 +1,19 @@
 import type { ForgeConfig } from '@electron-forge/shared-types'
+import { rebuildMacosAliasForHost } from './src/host-native-tools.ts'
 import { resolveMacDistribution, resolveMacDmg } from './src/macos-distribution.ts'
 import { pruneElectronLocales } from './src/package-prune.ts'
+
+export type RebuildHostNativeTools = () => Promise<boolean>
 
 /**
  * Create the Electron Forge configuration for one build environment.
  * @param environment - Process environment containing optional macOS distribution credentials.
  * @returns A complete Forge configuration.
  */
-export function createForgeConfig(environment: NodeJS.ProcessEnv): ForgeConfig {
+export function createForgeConfig(
+  environment: NodeJS.ProcessEnv,
+  rebuildHostNativeTools: RebuildHostNativeTools = rebuildMacosAliasForHost,
+): ForgeConfig {
   const macDistribution = resolveMacDistribution(environment)
   return {
     packagerConfig: {
@@ -46,6 +52,11 @@ export function createForgeConfig(environment: NodeJS.ProcessEnv): ForgeConfig {
         config: {},
       },
     ],
+    hooks: {
+      preMake: async () => {
+        await rebuildHostNativeTools()
+      },
+    },
     outDir: 'out',
   }
 }
