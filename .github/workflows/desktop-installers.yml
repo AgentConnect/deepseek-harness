@@ -62,11 +62,6 @@ jobs:
       - uses: actions/checkout@v4
         with:
           path: h
-      - uses: actions/checkout@v4
-        with:
-          repository: Howe829/AgentConnect
-          ref: 37c7db11c18ec80319bf647a6deec8ef77c63bb5
-          path: anp
       - uses: pnpm/action-setup@v4
         with:
           version: 11.7.0
@@ -75,9 +70,6 @@ jobs:
           node-version: 24
           cache: pnpm
           cache-dependency-path: h/pnpm-lock.yaml
-      - name: Build the linked ANP TypeScript SDK
-        working-directory: anp/typescript/ts_sdk
-        run: npm ci && npm run build
       - run: pnpm install --frozen-lockfile
       - name: Import the Apple distribution certificate
         if: runner.os == 'macOS' && github.event_name == 'push'
@@ -153,14 +145,14 @@ jobs:
             throw "Expected one Windows installer, found $($installers.Count)."
           }
           $cliManifest = Get-Content apps/cli/package.json -Raw | ConvertFrom-Json
-          if ($cliManifest.dependencies.'dsh-awiki' -notmatch '/v(?<version>\d+\.\d+\.\d+)/') {
-            throw 'Could not determine the expected dsh-awiki version from apps/cli/package.json.'
+          $expectedAwikiVersion = '0.2.0-rc.2'
+          if ($cliManifest.dependencies.'@awiki/dsh' -ne $expectedAwikiVersion) {
+            throw "Expected apps/cli/package.json to depend on @awiki/dsh $expectedAwikiVersion."
           }
-          $expectedAwikiVersion = $Matches.version
-          $runtimeManifestJson = tar -xOf experiments/electron/.forge-runtime.tar.gz ./node_modules/dsh-awiki/package.json
+          $runtimeManifestJson = tar -xOf experiments/electron/.forge-runtime.tar.gz ./node_modules/@awiki/dsh/package.json
           $runtimeManifest = $runtimeManifestJson -join "`n" | ConvertFrom-Json
           if ($runtimeManifest.version -ne $expectedAwikiVersion) {
-            throw "Packaged dsh-awiki version $($runtimeManifest.version) does not match $expectedAwikiVersion."
+            throw "Packaged @awiki/dsh version $($runtimeManifest.version) does not match $expectedAwikiVersion."
           }
           $installer = $installers[0]
           $hash = Get-FileHash $installer.FullName -Algorithm SHA256
@@ -170,7 +162,7 @@ jobs:
             "- File: ``$($installer.Name)``"
             "- Size: ``$($installer.Length) bytes``"
             "- SHA-256: ``$($hash.Hash)``"
-            "- Bundled dsh-awiki: ``$($runtimeManifest.version)``"
+            "- Bundled @awiki/dsh: ``$($runtimeManifest.version)``"
           ) | Add-Content $env:GITHUB_STEP_SUMMARY
       - uses: actions/upload-artifact@v4
         with:

@@ -32,9 +32,6 @@ publicHoistPattern:
   - '@electron-forge/*'
 
 overrides:
-  # Use the sibling AWiki workspace until @anp/typescript-sdk@0.2.0 is published.
-  # The dsh-awiki package keeps its publishable semver dependency.
-  '@anp/typescript-sdk': 'link:../anp/typescript/ts_sdk'
   '@deepseek-ai/cosmokit': 'link:vendor/cosmokit'
   '@deepseek-ai/schemastery': 'link:vendor/schemastery'
   '@electron/rebuild': '4.2.0'
@@ -84,6 +81,13 @@ minimumReleaseAgeExclude:
   - node-addon-require-builtin-win32-ia32-msvc@0.1.4
   - node-addon-require-builtin-win32-x64-msvc@0.1.4
   - node-addon-require-builtin@0.1.4
+  - '@awiki/dsh@0.2.0-rc.2'
+  - '@awiki/im-core-node-darwin-arm64@0.1.2'
+  - '@awiki/im-core-node-darwin-x64@0.1.2'
+  - '@awiki/im-core-node-linux-arm64-gnu@0.1.2'
+  - '@awiki/im-core-node-linux-x64-gnu@0.1.2'
+  - '@awiki/im-core-node-win32-x64-msvc@0.1.2'
+  - '@awiki/im-core-node@0.1.2'
 
 patchedDependencies:
   node-pty@1.2.0-beta.15: patches/node-pty@1.2.0-beta.15.patch

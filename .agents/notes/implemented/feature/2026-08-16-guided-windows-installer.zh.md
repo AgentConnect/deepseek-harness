@@ -14,7 +14,7 @@ Windows 发行版使用 electron-builder 的 NSIS 引导式构建目标。安装
 
 Windows 可执行文件、安装程序、卸载程序和快捷方式使用从官方 DeepSeek 鲸鱼矢量图生成的 ICO，并采用产品品牌蓝作为背景。图标生成器从同一个 SVG 源文件生成 16 至 256 像素的标准 Windows 尺寸。
 
-桌面发行测试读取包 manifest（元数据清单）和 GitHub Actions 工作流，固定 Windows runner、上传的 EXE 路径、引导模式、目录选择、两类快捷方式、NSIS 命令和 Windows 图标路径。Windows job 验证构建的安装程序和内置的 `dsh-awiki` 版本，将 EXE 大小和 SHA-256 写入运行摘要，并将上传的 artifact（产物）保留 14 天。
+桌面发行测试读取包 manifest（元数据清单）和 GitHub Actions 工作流，固定 Windows runner、上传的 EXE 路径、引导模式、目录选择、两类快捷方式、NSIS 命令和 Windows 图标路径。Windows job 验证构建的安装程序和内置的 `@awiki/dsh` 版本，将 EXE 大小和 SHA-256 写入运行摘要，并将上传的 artifact（产物）保留 14 天。
 
 ## Alternatives considered
 

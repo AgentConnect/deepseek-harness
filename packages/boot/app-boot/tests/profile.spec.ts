@@ -166,7 +166,7 @@ describe('loadProfile', () => {
       '@deepseek-ai/dsh-base': { patch: '[]\n' },
       '@deepseek-ai/dsh-web-app': { patch: '[]\n' },
       '@deepseek-ai/dsh-headless': { patch: '[]\n' },
-      'dsh-awiki': { patch: '[]\n' },
+      '@awiki/dsh': { patch: '[]\n' },
       'custom-bundle': { patch: '[]\n' },
     })
     const home = tmp()
@@ -174,7 +174,7 @@ describe('loadProfile', () => {
     initProfile(web, ['@deepseek-ai/dsh-base', '@deepseek-ai/dsh-web-app'])
     loadProfile('t', 'web', anchor, home)
     expect(readProfileManifest('t', web).dsh?.profile?.bundles)
-      .toEqual(['@deepseek-ai/dsh-base', '@deepseek-ai/dsh-web-app', 'dsh-awiki'])
+      .toEqual(['@deepseek-ai/dsh-base', '@deepseek-ai/dsh-web-app', '@awiki/dsh'])
 
     const stock = resolveProfileDir('headless', home)
     initProfile(stock, [
