@@ -5,7 +5,6 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
-  '@anp/typescript-sdk': link:../anp/typescript/ts_sdk
   '@deepseek-ai/cosmokit': link:vendor/cosmokit
   '@deepseek-ai/schemastery': link:vendor/schemastery
   '@electron/rebuild': 4.2.0
@@ -129,6 +128,9 @@ importers:
 
   apps/cli:
     dependencies:
+      '@awiki/dsh':
+        specifier: 0.2.0-rc.2
+        version: 0.2.0-rc.2(@deepseek-ai/cordis@vendor+cordis)(@deepseek-ai/dsh-agent-default-model@packages+core+agent-default-model)(@deepseek-ai/dsh-api-remotes@packages+api+remotes)(@deepseek-ai/dsh-brand@packages+util+brand)(@deepseek-ai/dsh-client-connection@packages+client+connection)(@deepseek-ai/dsh-client-locale@packages+client+locale)(@deepseek-ai/dsh-client-runtime@packages+client+runtime)(@deepseek-ai/dsh-client-ui-layout@packages+client+ui-layout)(@deepseek-ai/dsh-client-ui-primitives@packages+client+ui-primitives)(@deepseek-ai/dsh-client-ui-settings@packages+client+ui-settings)(@deepseek-ai/dsh-client-ui-slots@packages+client+ui-slots)(@deepseek-ai/dsh-invariants@packages+runtime-diagnostics+invariants)(@deepseek-ai/dsh-llm@packages+llm+llm)(@deepseek-ai/dsh-session@packages+core+session)(@deepseek-ai/dsh-tools@packages+core+tools)(@deepseek-ai/dsh-typert-protocol@packages+typert+protocol)(react@18.3.1)
       '@deepseek-ai/cordis':
         specifier: workspace:^
         version: link:../../vendor/cordis
@@ -306,9 +308,6 @@ importers:
       commander:
         specifier: ^15.0.0
         version: 15.0.0
-      dsh-awiki:
-        specifier: https://github.com/AgentConnect/dsh-awiki/releases/download/v0.1.3/dsh-awiki-0.1.3.tgz
-        version: https://github.com/AgentConnect/dsh-awiki/releases/download/v0.1.3/dsh-awiki-0.1.3.tgz(@deepseek-ai/cordis@vendor+cordis)(@deepseek-ai/dsh-api-remotes@packages+api+remotes)(@deepseek-ai/dsh-brand@packages+util+brand)(@deepseek-ai/dsh-client-connection@packages+client+connection)(@deepseek-ai/dsh-client-locale@packages+client+locale)(@deepseek-ai/dsh-client-runtime@packages+client+runtime)(@deepseek-ai/dsh-client-ui-layout@packages+client+ui-layout)(@deepseek-ai/dsh-client-ui-primitives@packages+client+ui-primitives)(@deepseek-ai/dsh-client-ui-settings@packages+client+ui-settings)(@deepseek-ai/dsh-client-ui-slots@packages+client+ui-slots)(@deepseek-ai/dsh-invariants@packages+runtime-diagnostics+invariants)(@deepseek-ai/dsh-session@packages+core+session)(@deepseek-ai/dsh-tools@packages+core+tools)(@deepseek-ai/dsh-typert-protocol@packages+typert+protocol)(react@18.3.1)
       js-yaml:
         specifier: ^4.2.0
         version: 4.2.0
@@ -455,9 +454,6 @@ importers:
       '@deepseek-ai/dsh-attachment-local':
         specifier: workspace:*
         version: link:../packages/attachment/attachment-local
-      '@deepseek-ai/dsh-awiki':
-        specifier: workspace:*
-        version: link:../packages/awiki/awiki
       '@deepseek-ai/dsh-bash-local':
         specifier: workspace:*
         version: link:../packages/shell/bash-local
@@ -1039,52 +1035,6 @@ importers:
         specifier: workspace:^
         version: link:../../runtime-diagnostics/invariants
 
-  packages/awiki/awiki:
-    dependencies:
-      '@anp/typescript-sdk':
-        specifier: link:../../../../anp/typescript/ts_sdk
-        version: link:../../../../anp/typescript/ts_sdk
-      '@deepseek-ai/schemastery':
-        specifier: link:../../../vendor/schemastery
-        version: link:../../../vendor/schemastery
-    devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
-      '@deepseek-ai/cordis-plugin-include':
-        specifier: workspace:^
-        version: link:../../../vendor/include
-      '@deepseek-ai/cordis-plugin-loader':
-        specifier: workspace:^
-        version: link:../../../vendor/loader
-      '@deepseek-ai/dsh-agent':
-        specifier: workspace:^
-        version: link:../../core/agent
-      '@deepseek-ai/dsh-brand':
-        specifier: workspace:^
-        version: link:../../util/brand
-      '@deepseek-ai/dsh-invariants':
-        specifier: workspace:^
-        version: link:../../runtime-diagnostics/invariants
-      '@deepseek-ai/dsh-llm':
-        specifier: workspace:^
-        version: link:../../llm/llm
-      '@deepseek-ai/dsh-session':
-        specifier: workspace:^
-        version: link:../../core/session
-      '@deepseek-ai/dsh-system-prompt':
-        specifier: workspace:^
-        version: link:../../core/system-prompt
-      '@deepseek-ai/dsh-tools':
-        specifier: workspace:^
-        version: link:../../core/tools
-      '@deepseek-ai/dsh-typert-protocol':
-        specifier: workspace:^
-        version: link:../../typert/protocol
-      '@deepseek-ai/dsh-user-approval':
-        specifier: workspace:^
-        version: link:../../interaction/user-approval
-
   packages/boot/app-boot:
     dependencies:
       js-yaml:
@@ -1142,28 +1092,6 @@ importers:
       commander:
         specifier: ^15.0.0
         version: 15.0.0
-
-  packages/bundle/awiki-web:
-    dependencies:
-      '@deepseek-ai/dsh-awiki':
-        specifier: workspace:^
-        version: link:../../awiki/awiki
-      '@deepseek-ai/dsh-client-ui-awiki':
-        specifier: workspace:^
-        version: link:../../client/ui-awiki
-    devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
-      '@deepseek-ai/cordis-plugin-include':
-        specifier: workspace:^
-        version: link:../../../vendor/include
-      '@deepseek-ai/cordis-plugin-loader':
-        specifier: workspace:^
-        version: link:../../../vendor/loader
-      '@deepseek-ai/dsh-invariants':
-        specifier: workspace:^
-        version: link:../../runtime-diagnostics/invariants
 
   packages/bundle/base:
     dependencies:
@@ -1914,51 +1842,6 @@ importers:
       '@types/react-dom':
         specifier: ~18.3.0
         version: 18.3.7(@types/react@18.3.31)
-
-  packages/client/ui-awiki:
-    devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:^
-        version: link:../../../vendor/cordis
-      '@deepseek-ai/dsh-api-remotes':
-        specifier: workspace:^
-        version: link:../../api/remotes
-      '@deepseek-ai/dsh-awiki':
-        specifier: workspace:^
-        version: link:../../awiki/awiki
-      '@deepseek-ai/dsh-client-runtime':
-        specifier: workspace:^
-        version: link:../runtime
-      '@deepseek-ai/dsh-client-ui-layout':
-        specifier: workspace:^
-        version: link:../ui-layout
-      '@deepseek-ai/dsh-client-ui-primitives':
-        specifier: workspace:^
-        version: link:../ui-primitives
-      '@deepseek-ai/dsh-client-ui-slots':
-        specifier: workspace:^
-        version: link:../ui-slots
-      '@deepseek-ai/dsh-invariants':
-        specifier: workspace:^
-        version: link:../../runtime-diagnostics/invariants
-      '@deepseek-ai/dsh-typert-protocol':
-        specifier: workspace:^
-        version: link:../../typert/protocol
-      '@testing-library/react':
-        specifier: ^16.1.0
-        version: 16.3.2(@testing-library/dom@10.4.1)(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@types/react':
-        specifier: ~18.3.1
-        version: 18.3.31
-      '@types/react-dom':
-        specifier: ~18.3.0
-        version: 18.3.7(@types/react@18.3.31)
-      react:
-        specifier: ^18.2.0
-        version: 18.3.1
-      react-dom:
-        specifier: ^18.2.0
-        version: 18.3.1(react@18.3.1)
 
   packages/client/ui-commands:
     dependencies:
@@ -9185,6 +9068,64 @@ packages:
   '@asamuzakjp/nwsapi@2.3.9':
     resolution: {integrity: sha512-n8GuYSrI9bF7FFZ/SjhwevlHc8xaVlb/7HmHelnc/PZXBD2ZR49NnN9sMMuDdEGPeeRQ5d0hqlSlEpgCX3Wl0Q==}
 
+  '@awiki/dsh@0.2.0-rc.2':
+    resolution: {integrity: sha512-LsheLMqS1OiFn/5onXfERJzQQnbI3CV+7bYbtr2Q9a+Aj49NYO28MVe3jDpX4Sbpzspu1dHtr97rmTJr51zMcQ==}
+    engines: {node: ^22.19.0 || >=24.0.0}
+    peerDependencies:
+      '@deepseek-ai/cordis': ^4.0.1
+      '@deepseek-ai/dsh-agent-default-model': ^0.1.0-rc.6
+      '@deepseek-ai/dsh-api-remotes': ^0.1.0-rc.6
+      '@deepseek-ai/dsh-brand': ^0.1.0-rc.6
+      '@deepseek-ai/dsh-client-connection': ^0.1.0-rc.6
+      '@deepseek-ai/dsh-client-locale': ^0.1.0-rc.6
+      '@deepseek-ai/dsh-client-runtime': ^0.1.0-rc.6
+      '@deepseek-ai/dsh-client-ui-layout': ^0.1.0-rc.6
+      '@deepseek-ai/dsh-client-ui-primitives': ^0.1.0-rc.6
+      '@deepseek-ai/dsh-client-ui-settings': ^0.1.0-rc.6
+      '@deepseek-ai/dsh-client-ui-slots': ^0.1.0-rc.6
+      '@deepseek-ai/dsh-invariants': ^0.1.0-rc.6
+      '@deepseek-ai/dsh-llm': ^0.1.0-rc.6
+      '@deepseek-ai/dsh-session': ^0.1.0-rc.6
+      '@deepseek-ai/dsh-tools': ^0.1.0-rc.6
+      '@deepseek-ai/dsh-typert-protocol': ^0.1.0-rc.6
+      react: ^18.2.0
+
+  '@awiki/im-core-node-darwin-arm64@0.1.2':
+    resolution: {integrity: sha512-d9j7li5DuUmSmT4or40AVwV8zys5fSVJoRXjLDCAntSqzm89oFpANiJ5cNNXIMjp59zpEYMOSz2CaspLlzX+xw==}
+    engines: {node: ^22.19.0 || >=24.0.0}
+    cpu: [arm64]
+    os: [darwin]
+
+  '@awiki/im-core-node-darwin-x64@0.1.2':
+    resolution: {integrity: sha512-18ujMGe0L1tcCXnzmTwi+CFf5Al7X8rht0wDLdSPkZSzMgofOHv3HptO+trV7XHbCcBLQo0IGLRv0f8auvdGZg==}
+    engines: {node: ^22.19.0 || >=24.0.0}
+    cpu: [x64]
+    os: [darwin]
+
+  '@awiki/im-core-node-linux-arm64-gnu@0.1.2':
+    resolution: {integrity: sha512-qt7vTIAJSKxGyWb/8mqY1Y1W7qU1SzZPiAv4Y6ABHlpIVe/hbhmr5d80foZvQdG6S2UnQfw9krbuzIxjJAGfkw==}
+    engines: {node: ^22.19.0 || >=24.0.0}
+    cpu: [arm64]
+    os: [linux]
+    libc: [glibc]
+
+  '@awiki/im-core-node-linux-x64-gnu@0.1.2':
+    resolution: {integrity: sha512-4zm6/YxQnyOWL2smJQNGniyDfrm4ZZcdAh96O0VreJ/6U5cdQvbmt91JiQp/RMoHYK2NRmKL4UavxFI357MHJQ==}
+    engines: {node: ^22.19.0 || >=24.0.0}
+    cpu: [x64]
+    os: [linux]
+    libc: [glibc]
+
+  '@awiki/im-core-node-win32-x64-msvc@0.1.2':
+    resolution: {integrity: sha512-n+7O6uLeDkV4wKOfGcOSKMYByuGbtg03gWKIcqh1PtvSDlWbE9lj50XYKCFnb9DcJVfcngBxxib4meNGpnh95Q==}
+    engines: {node: ^22.19.0 || >=24.0.0}
+    cpu: [x64]
+    os: [win32]
+
+  '@awiki/im-core-node@0.1.2':
+    resolution: {integrity: sha512-k++adHd7jYfQpn1e16bo77MUylLDXNVI0DsWtGTXqQeFq7A7g6d+ySgTi63hDOQTrjuYPomy8DQ1HaWabglHZw==}
+    engines: {node: ^22.19.0 || >=24.0.0}
+
   '@aws-crypto/crc32@5.2.0':
     resolution: {integrity: sha512-nLbCWqQNgUiwwtFsen1AdzAtvuLRsQS8rYgMuxCrdKf9kOssamGLuPwyTY9wyYblNr9+1XM8v6zoDTPPSIeANg==}
     engines: {node: '>=16.0.0'}
@@ -12894,27 +12835,6 @@ packages:
   ds-store@0.1.6:
     resolution: {integrity: sha512-kY21M6Lz+76OS3bnCzjdsJSF7LBpLYGCVfavW8TgQD2XkcqIZ86W0y9qUDZu6fp7SIZzqosMDW2zi7zVFfv4hw==}
 
-  dsh-awiki@https://github.com/AgentConnect/dsh-awiki/releases/download/v0.1.3/dsh-awiki-0.1.3.tgz:
-    resolution: {integrity: sha512-eugT81KaY+l3Exs3oT8wYK2wd2wy8CU7UUk9MNfNtcxAZOBixqG4RaqpzO9Uv8PbKfoM+QFhnNKG6ZU8f64N5w==, tarball: https://github.com/AgentConnect/dsh-awiki/releases/download/v0.1.3/dsh-awiki-0.1.3.tgz}
-    version: 0.1.3
-    engines: {node: ^22.19.0 || >=24.0.0}
-    peerDependencies:
-      '@deepseek-ai/cordis': ^4.0.1
-      '@deepseek-ai/dsh-api-remotes': ^0.1.0-rc.6
-      '@deepseek-ai/dsh-brand': ^0.1.0-rc.6
-      '@deepseek-ai/dsh-client-connection': ^0.1.0-rc.6
-      '@deepseek-ai/dsh-client-locale': ^0.1.0-rc.6
-      '@deepseek-ai/dsh-client-runtime': ^0.1.0-rc.6
-      '@deepseek-ai/dsh-client-ui-layout': ^0.1.0-rc.6
-      '@deepseek-ai/dsh-client-ui-primitives': ^0.1.0-rc.6
-      '@deepseek-ai/dsh-client-ui-settings': ^0.1.0-rc.6
-      '@deepseek-ai/dsh-client-ui-slots': ^0.1.0-rc.6
-      '@deepseek-ai/dsh-invariants': ^0.1.0-rc.6
-      '@deepseek-ai/dsh-session': ^0.1.0-rc.6
-      '@deepseek-ai/dsh-tools': ^0.1.0-rc.6
-      '@deepseek-ai/dsh-typert-protocol': ^0.1.0-rc.6
-      react: ^18.2.0
-
   dts-resolver@3.0.0:
     resolution: {integrity: sha512-1T1f+z+4tl9XD+m+0HBgWoL/nm0bOIffyWaUuUSBlFg/86IWvfx+wjNaO/ybU0AJzG9/Mi5hBUgGV6zCmWEN7Q==}
     engines: {node: ^22.18.0 || >=24.0.0}
@@ -16363,6 +16283,53 @@ snapshots:
   '@asamuzakjp/generational-cache@1.0.1': {}
 
   '@asamuzakjp/nwsapi@2.3.9': {}
+
+  '@awiki/dsh@0.2.0-rc.2(@deepseek-ai/cordis@vendor+cordis)(@deepseek-ai/dsh-agent-default-model@packages+core+agent-default-model)(@deepseek-ai/dsh-api-remotes@packages+api+remotes)(@deepseek-ai/dsh-brand@packages+util+brand)(@deepseek-ai/dsh-client-connection@packages+client+connection)(@deepseek-ai/dsh-client-locale@packages+client+locale)(@deepseek-ai/dsh-client-runtime@packages+client+runtime)(@deepseek-ai/dsh-client-ui-layout@packages+client+ui-layout)(@deepseek-ai/dsh-client-ui-primitives@packages+client+ui-primitives)(@deepseek-ai/dsh-client-ui-settings@packages+client+ui-settings)(@deepseek-ai/dsh-client-ui-slots@packages+client+ui-slots)(@deepseek-ai/dsh-invariants@packages+runtime-diagnostics+invariants)(@deepseek-ai/dsh-llm@packages+llm+llm)(@deepseek-ai/dsh-session@packages+core+session)(@deepseek-ai/dsh-tools@packages+core+tools)(@deepseek-ai/dsh-typert-protocol@packages+typert+protocol)(react@18.3.1)':
+    dependencies:
+      '@awiki/im-core-node': 0.1.2
+      '@deepseek-ai/cordis': link:vendor/cordis
+      '@deepseek-ai/dsh-agent-default-model': link:packages/core/agent-default-model
+      '@deepseek-ai/dsh-api-remotes': link:packages/api/remotes
+      '@deepseek-ai/dsh-brand': link:packages/util/brand
+      '@deepseek-ai/dsh-client-connection': link:packages/client/connection
+      '@deepseek-ai/dsh-client-locale': link:packages/client/locale
+      '@deepseek-ai/dsh-client-runtime': link:packages/client/runtime
+      '@deepseek-ai/dsh-client-ui-layout': link:packages/client/ui-layout
+      '@deepseek-ai/dsh-client-ui-primitives': link:packages/client/ui-primitives
+      '@deepseek-ai/dsh-client-ui-settings': link:packages/client/ui-settings
+      '@deepseek-ai/dsh-client-ui-slots': link:packages/client/ui-slots
+      '@deepseek-ai/dsh-invariants': link:packages/runtime-diagnostics/invariants
+      '@deepseek-ai/dsh-llm': link:packages/llm/llm
+      '@deepseek-ai/dsh-session': link:packages/core/session
+      '@deepseek-ai/dsh-settings': 0.1.0-rc.6(@deepseek-ai/cordis@vendor+cordis)(@deepseek-ai/dsh-brand@packages+util+brand)(@deepseek-ai/dsh-invariants@packages+runtime-diagnostics+invariants)(@deepseek-ai/schemastery@vendor+schemastery)
+      '@deepseek-ai/dsh-tools': link:packages/core/tools
+      '@deepseek-ai/dsh-typert-protocol': link:packages/typert/protocol
+      '@deepseek-ai/schemastery': link:vendor/schemastery
+      react: 18.3.1
+      zod: 4.4.3
+
+  '@awiki/im-core-node-darwin-arm64@0.1.2':
+    optional: true
+
+  '@awiki/im-core-node-darwin-x64@0.1.2':
+    optional: true
+
+  '@awiki/im-core-node-linux-arm64-gnu@0.1.2':
+    optional: true
+
+  '@awiki/im-core-node-linux-x64-gnu@0.1.2':
+    optional: true
+
+  '@awiki/im-core-node-win32-x64-msvc@0.1.2':
+    optional: true
+
+  '@awiki/im-core-node@0.1.2':
+    optionalDependencies:
+      '@awiki/im-core-node-darwin-arm64': 0.1.2
+      '@awiki/im-core-node-darwin-x64': 0.1.2
+      '@awiki/im-core-node-linux-arm64-gnu': 0.1.2
+      '@awiki/im-core-node-linux-x64-gnu': 0.1.2
+      '@awiki/im-core-node-win32-x64-msvc': 0.1.2
 
   '@aws-crypto/crc32@5.2.0':
     dependencies:
@@ -20084,27 +20051,6 @@ snapshots:
       macos-alias: 0.2.12
       tn1150: 0.1.0
     optional: true
-
-  dsh-awiki@https://github.com/AgentConnect/dsh-awiki/releases/download/v0.1.3/dsh-awiki-0.1.3.tgz(@deepseek-ai/cordis@vendor+cordis)(@deepseek-ai/dsh-api-remotes@packages+api+remotes)(@deepseek-ai/dsh-brand@packages+util+brand)(@deepseek-ai/dsh-client-connection@packages+client+connection)(@deepseek-ai/dsh-client-locale@packages+client+locale)(@deepseek-ai/dsh-client-runtime@packages+client+runtime)(@deepseek-ai/dsh-client-ui-layout@packages+client+ui-layout)(@deepseek-ai/dsh-client-ui-primitives@packages+client+ui-primitives)(@deepseek-ai/dsh-client-ui-settings@packages+client+ui-settings)(@deepseek-ai/dsh-client-ui-slots@packages+client+ui-slots)(@deepseek-ai/dsh-invariants@packages+runtime-diagnostics+invariants)(@deepseek-ai/dsh-session@packages+core+session)(@deepseek-ai/dsh-tools@packages+core+tools)(@deepseek-ai/dsh-typert-protocol@packages+typert+protocol)(react@18.3.1):
-    dependencies:
-      '@deepseek-ai/cordis': link:vendor/cordis
-      '@deepseek-ai/dsh-api-remotes': link:packages/api/remotes
-      '@deepseek-ai/dsh-brand': link:packages/util/brand
-      '@deepseek-ai/dsh-client-connection': link:packages/client/connection
-      '@deepseek-ai/dsh-client-locale': link:packages/client/locale
-      '@deepseek-ai/dsh-client-runtime': link:packages/client/runtime
-      '@deepseek-ai/dsh-client-ui-layout': link:packages/client/ui-layout
-      '@deepseek-ai/dsh-client-ui-primitives': link:packages/client/ui-primitives
-      '@deepseek-ai/dsh-client-ui-settings': link:packages/client/ui-settings
-      '@deepseek-ai/dsh-client-ui-slots': link:packages/client/ui-slots
-      '@deepseek-ai/dsh-invariants': link:packages/runtime-diagnostics/invariants
-      '@deepseek-ai/dsh-session': link:packages/core/session
-      '@deepseek-ai/dsh-settings': 0.1.0-rc.6(@deepseek-ai/cordis@vendor+cordis)(@deepseek-ai/dsh-brand@packages+util+brand)(@deepseek-ai/dsh-invariants@packages+runtime-diagnostics+invariants)(@deepseek-ai/schemastery@vendor+schemastery)
-      '@deepseek-ai/dsh-tools': link:packages/core/tools
-      '@deepseek-ai/dsh-typert-protocol': link:packages/typert/protocol
-      '@deepseek-ai/schemastery': link:vendor/schemastery
-      react: 18.3.1
-      zod: 4.4.3
 
   dts-resolver@3.0.0(oxc-resolver@11.20.0):
     optionalDependencies:

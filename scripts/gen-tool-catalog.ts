@@ -9,7 +9,6 @@
 import { globSync, readFileSync, writeFileSync } from 'node:fs'
 import { basename, resolve } from 'node:path'
 import { Context } from '@deepseek-ai/cordis'
-import AwikiService from '@deepseek-ai/dsh-awiki'
 import type { ToolSchema } from '@deepseek-ai/dsh-llm'
 import AgentRegistry from '@deepseek-ai/dsh-agent'
 import type { Agent } from '@deepseek-ai/dsh-agent'
@@ -183,25 +182,6 @@ export interface ToolPackage {
  * guard proves it is exhaustive against the on-disk glob.
  */
 const TOOL_PACKAGES: ToolPackage[] = [
-  {
-    pkg: '@deepseek-ai/dsh-awiki',
-    dir: 'awiki',
-    source: 'packages/awiki/awiki/src/tools.ts',
-    requires: ['ctx.tools', 'ctx.awiki', 'ctx.approval (send execution time)'],
-    writes: ['tool/call', 'tool/result', 'external AWiki text or attachment after approval'],
-    async mount(ctx) {
-      await ctx.plugin(AwikiService, {
-        userServiceUrl: 'https://users.awiki.test',
-        userServiceDomain: 'awiki.test',
-        messageServiceUrl: 'https://messages.awiki.test',
-        messageServicePublicUrl: 'https://messages.awiki.test',
-        messageServiceDid: 'did:wba:messages.awiki.test',
-        statePath: '/catalog/awiki-state.json',
-      })
-    },
-    note:
-      'The three read tools expose only public deployment state. The two send tools request approval at execution time and all five use the deployment\'s single AWiki identity.',
-  },
   {
     pkg: '@deepseek-ai/dsh-tool-ask-user',
     dir: 'tool-ask-user',

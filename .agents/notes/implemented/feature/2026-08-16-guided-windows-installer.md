@@ -14,7 +14,7 @@ Windows releases use electron-builder's assisted NSIS target. The installer expo
 
 The Windows executable, installer, uninstaller, and shortcuts use an ICO generated from the official DeepSeek whale vector on the product blue background. The icon generator emits the standard Windows sizes from 16 through 256 pixels from one SVG source.
 
-The desktop distribution test reads the package manifest and GitHub Actions workflow, then pins the Windows runner, uploaded EXE path, assisted mode, directory selection, both shortcut types, NSIS command, and Windows icon path. The Windows job verifies the built installer and bundled `dsh-awiki` version, writes the EXE size and SHA-256 to the run summary, and retains the uploaded artifact for 14 days.
+The desktop distribution test reads the package manifest and GitHub Actions workflow, then pins the Windows runner, uploaded EXE path, assisted mode, directory selection, both shortcut types, NSIS command, and Windows icon path. The Windows job verifies the built installer and bundled `@awiki/dsh` version, writes the EXE size and SHA-256 to the run summary, and retains the uploaded artifact for 14 days.
 
 ## Alternatives considered
 
