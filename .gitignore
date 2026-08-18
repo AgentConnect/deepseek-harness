@@ -7,6 +7,8 @@ pnpm-debug.log
 .pnpm-store/
 .cache/
 .dev-state/
+.dev-package-overrides.json
+.dev-package-overrides/
 examples/*/*.jsonl
 .storages/
 .sessions/

@@ -230,7 +230,8 @@ describe('SettingsPanel navigation', () => {
   it('dismisses every remaining step for the current onboarding pass', () => {
     const { renderSlot } = mount()
     const first = renderSlot.mock.calls.find(call => call[0] === 'settings.onboarding')
-    expect(first?.[1]).toMatchObject({ stepId: 'welcome', dismiss: expect.any(Function) })
+    expect(first?.[1]).toMatchObject({ stepId: 'welcome' })
+    expect(typeof (first?.[1] as { dismiss?: unknown }).dismiss).toBe('function')
 
     act(() => {
       (first?.[1] as { dismiss: () => void }).dismiss()

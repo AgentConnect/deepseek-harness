@@ -12,6 +12,16 @@ pnpm --filter deepseek-harness-electron start:dev
 
 此命令会构建并启动桌面应用，将 DSH 状态保存到 `.dev-state/dsh`，将 AWiki 身份和消息状态保存到 `.dev-state/awiki-im-core`，将 Electron 的 Cookie、偏好设置、缓存和浏览器存储保存到 `.dev-state/electron`，并默认使用仓库根目录作为智能体工作目录。`.dev-state` 已被 Git 忽略，所有开发数据都与已安装应用的数据相互隔离，因此不需要卸载已安装的正式版。
 
+如需测试尚未发布的插件归档且不修改已提交依赖，可在仓库根目录创建已忽略的 `.dev-package-overrides.json`。其中每个 CLI 依赖对应一个绝对归档路径，或一个相对于配置文件的路径：
+
+```json
+{
+  "@scope/plugin": ".dev-package-overrides/archives/plugin.tgz"
+}
+```
+
+`start:dev` 会先构建工作区，再在 Electron 启动前校验并挂载每个打包产物。覆盖包从已安装公开包的锁定闭包和 CLI 工作区解析其已声明依赖；如果该包尚未安装，需先运行一次 `pnpm install --frozen-lockfile`。配置文件不存在时使用公开依赖；JSON 无效、包名未在 CLI 依赖中声明、归档缺失、归档内包名不匹配或已安装依赖缺失时，启动会直接失败。解压后的包及其生成的依赖链接保存在已忽略的 `.dev-package-overrides/` 目录中，与 `.dev-state` 分离，因此清除首次启动的应用数据不会丢失包覆盖配置。manifest、lockfile、安装包和普通 `start` 启动仍使用公开依赖。
+
 ## 构建安装包
 
 ```sh

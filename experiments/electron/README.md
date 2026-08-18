@@ -12,6 +12,16 @@ pnpm --filter deepseek-harness-electron start:dev
 
 This command builds and starts the desktop application with DSH state under `.dev-state/dsh`, AWiki identity and message state under `.dev-state/awiki-im-core`, Electron cookies, preferences, caches, and browser storage under `.dev-state/electron`, and the repository root as the default agent workspace. The ignored `.dev-state` directory keeps all development data separate from the installed application's data, so the installed application does not need to be removed.
 
+To test an unpublished packed plugin without changing committed dependencies, create the ignored `.dev-package-overrides.json` at the repository root. It maps each CLI dependency to an absolute archive path or a path relative to the configuration file:
+
+```json
+{
+  "@scope/plugin": ".dev-package-overrides/archives/plugin.tgz"
+}
+```
+
+`start:dev` builds the workspace first, then validates and mounts each packed package immediately before Electron starts. The override resolves declared dependencies from the installed public package's locked closure and the CLI workspace, so run `pnpm install --frozen-lockfile` once if that package is not installed. A missing configuration uses the public dependencies; invalid JSON, undeclared package names, missing archives, archive package-name mismatches, and missing installed dependencies stop the launch. Extracted packages and their generated dependency links remain under the ignored `.dev-package-overrides/` directory, separate from `.dev-state`, so clearing first-run application data does not discard package overrides. Manifests, the lockfile, installers, and normal `start` launches continue to use public dependencies.
+
 ## Build installers
 
 ```sh
