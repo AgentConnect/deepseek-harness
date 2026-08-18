@@ -128,9 +128,9 @@ importers:
 
   apps/cli:
     dependencies:
-      '@awiki/dsh':
-        specifier: 0.2.0-rc.2
-        version: 0.2.0-rc.2(@deepseek-ai/cordis@vendor+cordis)(@deepseek-ai/dsh-agent-default-model@packages+core+agent-default-model)(@deepseek-ai/dsh-api-remotes@packages+api+remotes)(@deepseek-ai/dsh-brand@packages+util+brand)(@deepseek-ai/dsh-client-connection@packages+client+connection)(@deepseek-ai/dsh-client-locale@packages+client+locale)(@deepseek-ai/dsh-client-runtime@packages+client+runtime)(@deepseek-ai/dsh-client-ui-layout@packages+client+ui-layout)(@deepseek-ai/dsh-client-ui-primitives@packages+client+ui-primitives)(@deepseek-ai/dsh-client-ui-settings@packages+client+ui-settings)(@deepseek-ai/dsh-client-ui-slots@packages+client+ui-slots)(@deepseek-ai/dsh-invariants@packages+runtime-diagnostics+invariants)(@deepseek-ai/dsh-llm@packages+llm+llm)(@deepseek-ai/dsh-session@packages+core+session)(@deepseek-ai/dsh-tools@packages+core+tools)(@deepseek-ai/dsh-typert-protocol@packages+typert+protocol)(react@18.3.1)
+      '@awiki/dsh-plugin':
+        specifier: 0.2.4
+        version: 0.2.4(@deepseek-ai/cordis@vendor+cordis)(@deepseek-ai/dsh-agent-default-model@packages+core+agent-default-model)(@deepseek-ai/dsh-api-remotes@packages+api+remotes)(@deepseek-ai/dsh-brand@packages+util+brand)(@deepseek-ai/dsh-client-connection@packages+client+connection)(@deepseek-ai/dsh-client-locale@packages+client+locale)(@deepseek-ai/dsh-client-runtime@packages+client+runtime)(@deepseek-ai/dsh-client-ui-layout@packages+client+ui-layout)(@deepseek-ai/dsh-client-ui-primitives@packages+client+ui-primitives)(@deepseek-ai/dsh-client-ui-settings@packages+client+ui-settings)(@deepseek-ai/dsh-client-ui-slots@packages+client+ui-slots)(@deepseek-ai/dsh-invariants@packages+runtime-diagnostics+invariants)(@deepseek-ai/dsh-llm@packages+llm+llm)(@deepseek-ai/dsh-session@packages+core+session)(@deepseek-ai/dsh-settings@packages+settings+settings)(@deepseek-ai/dsh-tools@packages+core+tools)(@deepseek-ai/dsh-typert-protocol@packages+typert+protocol)(react@18.3.1)
       '@deepseek-ai/cordis':
         specifier: workspace:^
         version: link:../../vendor/cordis
@@ -8901,10 +8901,10 @@ importers:
         version: 5.4.21(@types/node@25.9.3)(lightningcss@1.32.0)(terser@5.50.0)
       vitepress:
         specifier: ^1.6.4
-        version: 1.6.4(@algolia/client-search@5.55.2)(@types/node@25.9.3)(@types/react@18.3.31)(lightningcss@1.32.0)(postcss@8.5.15)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.17.3)(terser@5.50.0)(typescript@6.0.3)
+        version: 1.6.4(@algolia/client-search@5.55.2)(@types/node@25.9.3)(@types/react@18.3.31)(lightningcss@1.32.0)(postcss@8.5.15)(qrcode@1.5.4)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.17.3)(terser@5.50.0)(typescript@6.0.3)
       vitepress-plugin-mermaid:
         specifier: ^2.0.17
-        version: 2.0.17(mermaid@11.16.0)(vitepress@1.6.4(@algolia/client-search@5.55.2)(@types/node@25.9.3)(@types/react@18.3.31)(lightningcss@1.32.0)(postcss@8.5.15)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.17.3)(terser@5.50.0)(typescript@6.0.3))
+        version: 2.0.17(mermaid@11.16.0)(vitepress@1.6.4(@algolia/client-search@5.55.2)(@types/node@25.9.3)(@types/react@18.3.31)(lightningcss@1.32.0)(postcss@8.5.15)(qrcode@1.5.4)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.17.3)(terser@5.50.0)(typescript@6.0.3))
 
 packages:
 
@@ -9077,62 +9077,63 @@ packages:
   '@asamuzakjp/nwsapi@2.3.9':
     resolution: {integrity: sha512-n8GuYSrI9bF7FFZ/SjhwevlHc8xaVlb/7HmHelnc/PZXBD2ZR49NnN9sMMuDdEGPeeRQ5d0hqlSlEpgCX3Wl0Q==}
 
-  '@awiki/dsh@0.2.0-rc.2':
-    resolution: {integrity: sha512-LsheLMqS1OiFn/5onXfERJzQQnbI3CV+7bYbtr2Q9a+Aj49NYO28MVe3jDpX4Sbpzspu1dHtr97rmTJr51zMcQ==}
+  '@awiki/dsh-plugin@0.2.4':
+    resolution: {integrity: sha512-TFZl0U6TN57jqhCHeEJCtsitUYfx0YpqFKMvAc+HBOKrCARNazGcGwokBi4L//yhFqfFI8CYsuUTSrqRze4wZg==}
     engines: {node: ^22.19.0 || >=24.0.0}
     peerDependencies:
       '@deepseek-ai/cordis': ^4.0.1
-      '@deepseek-ai/dsh-agent-default-model': ^0.1.0-rc.6
-      '@deepseek-ai/dsh-api-remotes': ^0.1.0-rc.6
-      '@deepseek-ai/dsh-brand': ^0.1.0-rc.6
-      '@deepseek-ai/dsh-client-connection': ^0.1.0-rc.6
-      '@deepseek-ai/dsh-client-locale': ^0.1.0-rc.6
-      '@deepseek-ai/dsh-client-runtime': ^0.1.0-rc.6
-      '@deepseek-ai/dsh-client-ui-layout': ^0.1.0-rc.6
-      '@deepseek-ai/dsh-client-ui-primitives': ^0.1.0-rc.6
-      '@deepseek-ai/dsh-client-ui-settings': ^0.1.0-rc.6
-      '@deepseek-ai/dsh-client-ui-slots': ^0.1.0-rc.6
-      '@deepseek-ai/dsh-invariants': ^0.1.0-rc.6
-      '@deepseek-ai/dsh-llm': ^0.1.0-rc.6
-      '@deepseek-ai/dsh-session': ^0.1.0-rc.6
-      '@deepseek-ai/dsh-tools': ^0.1.0-rc.6
-      '@deepseek-ai/dsh-typert-protocol': ^0.1.0-rc.6
+      '@deepseek-ai/dsh-agent-default-model': 0.1.0-rc.7
+      '@deepseek-ai/dsh-api-remotes': 0.1.0-rc.7
+      '@deepseek-ai/dsh-brand': 0.1.0-rc.7
+      '@deepseek-ai/dsh-client-connection': 0.1.0-rc.7
+      '@deepseek-ai/dsh-client-locale': 0.1.0-rc.7
+      '@deepseek-ai/dsh-client-runtime': 0.1.0-rc.7
+      '@deepseek-ai/dsh-client-ui-layout': 0.1.0-rc.7
+      '@deepseek-ai/dsh-client-ui-primitives': 0.1.0-rc.7
+      '@deepseek-ai/dsh-client-ui-settings': 0.1.0-rc.7
+      '@deepseek-ai/dsh-client-ui-slots': 0.1.0-rc.7
+      '@deepseek-ai/dsh-invariants': 0.1.0-rc.7
+      '@deepseek-ai/dsh-llm': 0.1.0-rc.7
+      '@deepseek-ai/dsh-session': 0.1.0-rc.7
+      '@deepseek-ai/dsh-settings': 0.1.0-rc.7
+      '@deepseek-ai/dsh-tools': 0.1.0-rc.7
+      '@deepseek-ai/dsh-typert-protocol': 0.1.0-rc.7
       react: ^18.2.0
 
-  '@awiki/im-core-node-darwin-arm64@0.1.2':
-    resolution: {integrity: sha512-d9j7li5DuUmSmT4or40AVwV8zys5fSVJoRXjLDCAntSqzm89oFpANiJ5cNNXIMjp59zpEYMOSz2CaspLlzX+xw==}
+  '@awiki/im-core-node-darwin-arm64@0.1.3':
+    resolution: {integrity: sha512-dEySfFgy29fv0d/IO9GcBwFQYh1T2NrWH9TfCbcsPP+UOhP3t9sABlS3b66IHpJQjevhSjj47eu3TZAye4+JrQ==}
     engines: {node: ^22.19.0 || >=24.0.0}
     cpu: [arm64]
     os: [darwin]
 
-  '@awiki/im-core-node-darwin-x64@0.1.2':
-    resolution: {integrity: sha512-18ujMGe0L1tcCXnzmTwi+CFf5Al7X8rht0wDLdSPkZSzMgofOHv3HptO+trV7XHbCcBLQo0IGLRv0f8auvdGZg==}
+  '@awiki/im-core-node-darwin-x64@0.1.3':
+    resolution: {integrity: sha512-HlzxyMpwB3FQwSq7ybDuBtHwnKT049SNtNKQOI6Lv9B5XS7oHkSzallBqnan1cJ+iyW/SF8EK6u6NxFqDW1x+g==}
     engines: {node: ^22.19.0 || >=24.0.0}
     cpu: [x64]
     os: [darwin]
 
-  '@awiki/im-core-node-linux-arm64-gnu@0.1.2':
-    resolution: {integrity: sha512-qt7vTIAJSKxGyWb/8mqY1Y1W7qU1SzZPiAv4Y6ABHlpIVe/hbhmr5d80foZvQdG6S2UnQfw9krbuzIxjJAGfkw==}
+  '@awiki/im-core-node-linux-arm64-gnu@0.1.3':
+    resolution: {integrity: sha512-XipBm82zHg3qySFyInozwiki4bKDy4JBNh/rfDOElyDIOtmV4W4nXm1jAD6PfF1oMvs2n1/zxuTld/ghe02e2w==}
     engines: {node: ^22.19.0 || >=24.0.0}
     cpu: [arm64]
     os: [linux]
     libc: [glibc]
 
-  '@awiki/im-core-node-linux-x64-gnu@0.1.2':
-    resolution: {integrity: sha512-4zm6/YxQnyOWL2smJQNGniyDfrm4ZZcdAh96O0VreJ/6U5cdQvbmt91JiQp/RMoHYK2NRmKL4UavxFI357MHJQ==}
+  '@awiki/im-core-node-linux-x64-gnu@0.1.3':
+    resolution: {integrity: sha512-2YhU+nGa6uWWerO9L3rBTJvJ/nFANi62oL0lB0j0vcoSmtAomgnI7vEbqtIZz2JoEYN1a+ScX1Ydmr/EIVWyiA==}
     engines: {node: ^22.19.0 || >=24.0.0}
     cpu: [x64]
     os: [linux]
     libc: [glibc]
 
-  '@awiki/im-core-node-win32-x64-msvc@0.1.2':
-    resolution: {integrity: sha512-n+7O6uLeDkV4wKOfGcOSKMYByuGbtg03gWKIcqh1PtvSDlWbE9lj50XYKCFnb9DcJVfcngBxxib4meNGpnh95Q==}
+  '@awiki/im-core-node-win32-x64-msvc@0.1.3':
+    resolution: {integrity: sha512-4CxBtyTiKAIeA5ydwb1NDPiIcV5xLqe/MG6gJFDs/QXBbOPqchLFwEhxTisoIqGSsSqXqxVFbPGg2rra3YhrGQ==}
     engines: {node: ^22.19.0 || >=24.0.0}
     cpu: [x64]
     os: [win32]
 
-  '@awiki/im-core-node@0.1.2':
-    resolution: {integrity: sha512-k++adHd7jYfQpn1e16bo77MUylLDXNVI0DsWtGTXqQeFq7A7g6d+ySgTi63hDOQTrjuYPomy8DQ1HaWabglHZw==}
+  '@awiki/im-core-node@0.1.3':
+    resolution: {integrity: sha512-CdulqE7wi2V2bKmWrF8tGycVlOXEcyu2HeMwHNuWkO6817DrcofaZXbttg2FhSLFumATJ4maxLsfZUX1NEwWew==}
     engines: {node: ^22.19.0 || >=24.0.0}
 
   '@aws-crypto/crc32@5.2.0':
@@ -9410,14 +9411,6 @@ packages:
   '@csstools/css-tokenizer@4.0.0':
     resolution: {integrity: sha512-QxULHAm7cNu72w97JUNCBFODFaXpbDg+dP8b/oWFAZ2MTRppA3U00Y2L1HqaS4J6yBqxwa/Y3nMBaxVKbB/NsA==}
     engines: {node: '>=20.19.0'}
-
-  '@deepseek-ai/dsh-settings@0.1.0-rc.6':
-    resolution: {integrity: sha512-5ZlH2FNRU0kkdcCoEJohvdb2fiNnxM+iZqN3icbR3WQbMm8RPRrXlZlps5YUaQKPRbNRHA2LkOXW998QRlhHcA==}
-    peerDependencies:
-      '@deepseek-ai/cordis': ^4.0.1
-      '@deepseek-ai/dsh-brand': ^0.1.0-rc.6
-      '@deepseek-ai/dsh-invariants': ^0.1.0-rc.6
-      '@deepseek-ai/schemastery': ^3.18.1
 
   '@docsearch/css@3.8.2':
     resolution: {integrity: sha512-y05ayQFyUmCXze79+56v/4HpycYF3uFqB78pLPrSV5ZKAlDuIAAJNhaRi8tTdRNXh05yxX/TyNnzD6LwSM89vQ==}
@@ -12340,6 +12333,10 @@ packages:
     resolution: {integrity: sha512-+ys997U96po4Kx/ABpBCqhA9EuxJaQWDQg7295H4hBphv3IZg0boBKuwYpt4YXp6MZ5AmZQnU/tyMTlRpaSejg==}
     engines: {node: '>= 0.4'}
 
+  camelcase@5.3.1:
+    resolution: {integrity: sha512-L28STB170nwWS63UjtlEOE3dldQApaJXZkOI1uMFfzf3rRuPegHaHesyee+YxQ+W6SvRDQV6UrdOdRiR153wJg==}
+    engines: {node: '>=6'}
+
   caniuse-lite@1.0.30001806:
     resolution: {integrity: sha512-72Cuvd95zbSYPKq6Fhg8eDJRlzgWDf7/mtoZv6Qe/DYNCEBdNxoA3+rZAU2ZhGCpZlns3EssFavaZomckT5Uuw==}
 
@@ -12408,6 +12405,9 @@ packages:
   cli-width@4.1.0:
     resolution: {integrity: sha512-ouuZd4/dm2Sw5Gmqy6bGyNNNe1qt9RpmxveLSO7KcgsTnU7RXfsw+/bukWGo1abgBiMAic068rclZsO4IWmmxQ==}
     engines: {node: '>= 12'}
+
+  cliui@6.0.0:
+    resolution: {integrity: sha512-t6wbgtoCXvAzst7QgXxJYqPt0usEfbgQdftEPbLL/cvv6HPE5VgvqCuAIDR0NgU52ds6rFwqrgakNLrHEjCbrQ==}
 
   cliui@8.0.1:
     resolution: {integrity: sha512-BSeNnyus75C4//NQ9gQt1/csTXyo/8Sb+afLAkzAptFuMsod9HFokGNudZpi/oQV73hnVK+sR+5PVRMd+Dr7YQ==}
@@ -12723,6 +12723,10 @@ packages:
       supports-color:
         optional: true
 
+  decamelize@1.2.0:
+    resolution: {integrity: sha512-z2S+W9X73hAUUki+N+9Za2lBlun89zigOyGrsax+KUQ6wKW4ZoWpEYBkGhQjwAjjDCkWxhY0VKEhk8wzY7F5cA==}
+    engines: {node: '>=0.10.0'}
+
   decimal.js@10.6.0:
     resolution: {integrity: sha512-YpgQiITW3JXGntzdUmyUR1V812Hn8T1YVXhCu+wO3OpS4eU9l4YdD3qjyiKdV6mvV29zapkMeD390UVEf2lkUg==}
 
@@ -12783,6 +12787,9 @@ packages:
   diff@9.0.0:
     resolution: {integrity: sha512-svtcdpS8CgJyqAjEQIXdb3OjhFVVYjzGAPO8WGCmRbrml64SPw/jJD4GoE98aR7r25A0XcgrK3F02yw9R/vhQw==}
     engines: {node: '>=0.3.1'}
+
+  dijkstrajs@1.0.3:
+    resolution: {integrity: sha512-qiSlmBq9+BCdCA/L46dw8Uy93mloxsPSbwnm5yrKn2vMPiy8KyAskTF6zuV/j5BMsmOGZDPs7KjU+mjb670kfA==}
 
   dir-compare@4.2.0:
     resolution: {integrity: sha512-2xMCmOoMrdQIPHdsTawECdNPwlVFB9zGcz3kuhmBO6U3oU+UQjsue0i8ayLKpgBcm+hcXPMVSGUN9d+pvJ6+VQ==}
@@ -13191,6 +13198,10 @@ packages:
   find-up@2.1.0:
     resolution: {integrity: sha512-NWzkk0jSJtTt08+FBFMvXoeZnOJD+jTtsRmBYbAIzJdX6l7dLgR7CTubCM5/eDdPUBvLCeVasP1brfVR/9/EZQ==}
     engines: {node: '>=4'}
+
+  find-up@4.1.0:
+    resolution: {integrity: sha512-PpOwAdQ/YlXQ2vj8a3h8IipDuYRi3wceVQQGYWxNINccq40Anw7BlsEXCMbt1Zt+OLA6Fq9suIpIWD0OsnISlw==}
+    engines: {node: '>=8'}
 
   find-up@5.0.0:
     resolution: {integrity: sha512-78/PXT1wlLLDgTzDs7sjq9hzz0vXD+zn+7wypEe4fXQxCmdmqfGsEPQxmiCSQI3ajFV91bVSsvNtrJRiW6nGng==}
@@ -13973,6 +13984,10 @@ packages:
     resolution: {integrity: sha512-NCI2kiDkyR7VeEKm27Kda/iQHyKJe1Bu0FlTbYp3CqJu+9IFe9bLyAjMxf5ZDDbEg+iMPzB5zYyUTSm8wVTKmA==}
     engines: {node: '>=4'}
 
+  locate-path@5.0.0:
+    resolution: {integrity: sha512-t7hw9pI+WvuwNJXwk5zVHpyhIqzg2qTlklJOf0mVxGSbe3Fp2VieZcduNYjaLDoy6p9uGpQEGWG87WpMKlNq8g==}
+    engines: {node: '>=8'}
+
   locate-path@6.0.0:
     resolution: {integrity: sha512-iPZK6eYjbxRu3uB4/WZ3EsEIMJFMqAoopl3R+zuq0UjcAm/MO6KCweDgPfP3elTztoKP3KtnVHxTn2NHBSDVUw==}
     engines: {node: '>=10'}
@@ -14596,6 +14611,10 @@ packages:
     resolution: {integrity: sha512-vvcXsLAJ9Dr5rQOPk7toZQZJApBl2K4J6dANSsEuh6QI41JYcsS/qhTGa9ErIUUgK3WNQoJYvylxvjqmiqEA9Q==}
     engines: {node: '>=4'}
 
+  p-limit@2.3.0:
+    resolution: {integrity: sha512-//88mFWSJx8lxCzwdAABTJL2MyWB12+eIY7MDL2SqLmAkeKU9qxRvWuSyTjm3FUmpBEMuFfckAIqEaVGUDxb6w==}
+    engines: {node: '>=6'}
+
   p-limit@3.1.0:
     resolution: {integrity: sha512-TYOanM3wGwNGsZN2cVTYPArw454xnXj5qmWF1bEoAc4+cU/ol7GVh7odevjp1FNHduHc3KZMcFduxU5Xc6uJRQ==}
     engines: {node: '>=10'}
@@ -14603,6 +14622,10 @@ packages:
   p-locate@2.0.0:
     resolution: {integrity: sha512-nQja7m7gSKuewoVRen45CtVfODR3crN3goVQ0DDZ9N3yHxgpkuBhZqsaiotSQRrADUrne346peY7kT3TSACykg==}
     engines: {node: '>=4'}
+
+  p-locate@4.1.0:
+    resolution: {integrity: sha512-R79ZZ/0wAxKGu3oYMlz8jy/kbhsNrS7SKZ7PxEHBgJ5+F2mtFW2fK2cOtBh1cHYkQsbzFV7I+EoRKe6Yt0oK7A==}
+    engines: {node: '>=8'}
 
   p-locate@5.0.0:
     resolution: {integrity: sha512-LaNjtRWUBY++zB5nE/NwcaoMylSPk+S+ZHNB1TzdbMJMny6dynpAGt7X/tl/QYq3TIeE6nxHppbo2LGymrG5Pw==}
@@ -14615,6 +14638,10 @@ packages:
   p-try@1.0.0:
     resolution: {integrity: sha512-U1etNYuMJoIz3ZXSrrySFjsXQTWOx2/jdi86L+2pRvph/qMKL6sbcCYdH23fqsbm8TH2Gn0OybpT4eSFlCVHww==}
     engines: {node: '>=4'}
+
+  p-try@2.2.0:
+    resolution: {integrity: sha512-R4nPAVTAU0B9D35/Gk3uJf/7XYbQcyohSKdvAxIRSNghFl4e71hVoGnBNQz9cWaXxO2I10KTC+3jMdvvoKw6dQ==}
+    engines: {node: '>=6'}
 
   package-json-from-dist@1.0.1:
     resolution: {integrity: sha512-UEZIS3/by4OC8vL3P2dTXRETpebLI2NiI5vIrjaD/5UtrkFX/tNbwjTSRAGC/+7CAo2pIcBaRgWmcBBHcsaCIw==}
@@ -14765,6 +14792,10 @@ packages:
     engines: {node: '>=20'}
     hasBin: true
 
+  pngjs@5.0.0:
+    resolution: {integrity: sha512-40QW5YalBNfQo5yRYmiw7Yz6TKKVr3h6970B2YE+3fQpsWcrbj1PzJgxeJ19DRQjhMbKPIuMY8rFaXc8moolVw==}
+    engines: {node: '>=10.13.0'}
+
   pngjs@7.0.0:
     resolution: {integrity: sha512-LKWqWJRhstyYo9pGvgor/ivk2w94eSjE3RGVuzLGlr3NmD8bf7RcYGze1mNdEHRP6TRP6rMuDHk5t44hnTRyow==}
     engines: {node: '>=14.19.0'}
@@ -14859,6 +14890,11 @@ packages:
   pvutils@1.2.0:
     resolution: {integrity: sha512-BbubeCEyTuQjVMakvJQ/Sxbc93F2pwmbsxONT/ZRrwU7Ua38d8unYTwXpTVLAKJ4BDuH9IGztCjQcd/N/39Dvg==}
     engines: {node: '>=16.0.0'}
+
+  qrcode@1.5.4:
+    resolution: {integrity: sha512-1ca71Zgiu6ORjHqFBDpnSMTR2ReToX4l1Au1VFLyVeBTFavzQnv5JxMFr3ukHVKpSrSA2MCk0lNJSykjUfz7Zg==}
+    engines: {node: '>=10.13.0'}
+    hasBin: true
 
   qs@6.15.3:
     resolution: {integrity: sha512-O9gl3zCl5h5blw1KGUzQKhA5oUXSl8rwUIM5o0S3nCXMliSvy5Dzx7/DJcI+SwgICv+IneSZwhBh1oSyEHA71A==}
@@ -14956,6 +14992,9 @@ packages:
   require-from-string@2.0.2:
     resolution: {integrity: sha512-Xf0nWe6RseziFMu+Ap9biiUbmplq6S9/p+7w7YXP/JBHhrUDDUhwa+vANyubuqfZWTveU//DYVGsDG7RKL/vEw==}
     engines: {node: '>=0.10.0'}
+
+  require-main-filename@2.0.0:
+    resolution: {integrity: sha512-NKN5kMDylKuldxYLSUfrbo5Tuzh4hd+2E8NPPX02mZtn1VuREQToYe/ZdlJy+J3uCpfaiGF05e7B8W0iXbQHmg==}
 
   resedit@1.7.2:
     resolution: {integrity: sha512-vHjcY2MlAITJhC0eRD/Vv8Vlgmu9Sd3LX9zZvtGzU5ZImdTN3+d6e/4mnTyV8vEbyf1sgNIrWxhWlrys52OkEA==}
@@ -15132,6 +15171,9 @@ packages:
   serve-static@2.2.1:
     resolution: {integrity: sha512-xRXBn0pPqQTVQiC8wyQrKs2MOlX24zQ0POGaj0kultvoOCstBQM5yvOhAVSUwOMjQtTvsPWoNCHfPGwaaQJhTw==}
     engines: {node: '>= 18'}
+
+  set-blocking@2.0.0:
+    resolution: {integrity: sha512-KiKBS8AnWGEyLzofFfmvKwpdPzqiy16LvQfK3yv/fVH7Bj13/wl3JSR1J+rfgRE9q7xUJK4qvgS8raSOeLUehw==}
 
   setimmediate@1.0.5:
     resolution: {integrity: sha512-MATJdZp8sLqDl/68LfQmbP8zKPLQNV6BIZoIgrscFDQ+RsvK/BxeDQOgyxKKoh0y/8h3BqVFnCqQ/gd+reiIXA==}
@@ -15917,6 +15959,9 @@ packages:
     engines: {node: '>=22'}
     hasBin: true
 
+  which-module@2.0.1:
+    resolution: {integrity: sha512-iBdZ57RDvnOR9AGBhML2vFZf7h8vmBjhoaZqODJBFWHVtKkDmKuHai3cx5PgVMrX5YDNp27AofYbAwctSS+vhQ==}
+
   which@1.3.1:
     resolution: {integrity: sha512-HxJdYWq1MTIQbJ3nw0cqssHoTNU267KlrDuGZ1WYlxDStUtKUhOaJmh112/TZmHxxUfuJqPXSOm7tDyas0OSIQ==}
     hasBin: true
@@ -15991,6 +16036,9 @@ packages:
     resolution: {integrity: sha512-LKYU1iAXJXUgAXn9URjiu+MWhyUXHsvfp7mcuYm9dSUKK0/CjtrUwFAxD82/mCWbtLsGjFIad0wIsod4zrTAEQ==}
     engines: {node: '>=0.4'}
 
+  y18n@4.0.3:
+    resolution: {integrity: sha512-JKhqTOwSrqNA1NY5lSztJ1GrBiUodLMmIZuLiDaMRJ+itFd+ABVE8XBjOvIWL+rSqNDC74LCSFmlb/U4UZ4hJQ==}
+
   y18n@5.0.8:
     resolution: {integrity: sha512-0pfFzegeDWJHJIAmTLRP2DwHjdF5s7jo9tuztdQxAhINCdvS+3nGINqPd00AphqJR/0LhANUS6/+7SCb98YOfA==}
     engines: {node: '>=10'}
@@ -16010,9 +16058,17 @@ packages:
     engines: {node: '>= 14.6'}
     hasBin: true
 
+  yargs-parser@18.1.3:
+    resolution: {integrity: sha512-o50j0JeToy/4K6OZcaQmW6lyXXKhq7csREXcDwk2omFPJEwUNOVtJKvmDr9EI1fAJZUyZcRF7kxGBWmRXudrCQ==}
+    engines: {node: '>=6'}
+
   yargs-parser@21.1.1:
     resolution: {integrity: sha512-tVpsJW7DdjecAiFpbIB1e3qxIQsE6NoPc5/eTdrbbIC4h0LVsWhnoa3g+m2HclBIujHzsxZ4VJVA+GUuc2/LBw==}
     engines: {node: '>=12'}
+
+  yargs@15.4.1:
+    resolution: {integrity: sha512-aePbxDmcYW++PaqBsJ+HYUFwCdv4LVvdnhBy78E57PIor8/OVvhMrADFFEDh8DHDFRv/O9i3lPhsENjO7QX0+A==}
+    engines: {node: '>=8'}
 
   yargs@17.7.3:
     resolution: {integrity: sha512-GZtjxm/J/4TSxuL3FNYjCmLktBTnIw/rVmKSIyKeYAZpmJB2ig9VauCC5xsa82GNKVKDAqpOn3KVzNt0zmrU0g==}
@@ -16253,9 +16309,9 @@ snapshots:
 
   '@asamuzakjp/nwsapi@2.3.9': {}
 
-  '@awiki/dsh@0.2.0-rc.2(@deepseek-ai/cordis@vendor+cordis)(@deepseek-ai/dsh-agent-default-model@packages+core+agent-default-model)(@deepseek-ai/dsh-api-remotes@packages+api+remotes)(@deepseek-ai/dsh-brand@packages+util+brand)(@deepseek-ai/dsh-client-connection@packages+client+connection)(@deepseek-ai/dsh-client-locale@packages+client+locale)(@deepseek-ai/dsh-client-runtime@packages+client+runtime)(@deepseek-ai/dsh-client-ui-layout@packages+client+ui-layout)(@deepseek-ai/dsh-client-ui-primitives@packages+client+ui-primitives)(@deepseek-ai/dsh-client-ui-settings@packages+client+ui-settings)(@deepseek-ai/dsh-client-ui-slots@packages+client+ui-slots)(@deepseek-ai/dsh-invariants@packages+runtime-diagnostics+invariants)(@deepseek-ai/dsh-llm@packages+llm+llm)(@deepseek-ai/dsh-session@packages+core+session)(@deepseek-ai/dsh-tools@packages+core+tools)(@deepseek-ai/dsh-typert-protocol@packages+typert+protocol)(react@18.3.1)':
+  '@awiki/dsh-plugin@0.2.4(@deepseek-ai/cordis@vendor+cordis)(@deepseek-ai/dsh-agent-default-model@packages+core+agent-default-model)(@deepseek-ai/dsh-api-remotes@packages+api+remotes)(@deepseek-ai/dsh-brand@packages+util+brand)(@deepseek-ai/dsh-client-connection@packages+client+connection)(@deepseek-ai/dsh-client-locale@packages+client+locale)(@deepseek-ai/dsh-client-runtime@packages+client+runtime)(@deepseek-ai/dsh-client-ui-layout@packages+client+ui-layout)(@deepseek-ai/dsh-client-ui-primitives@packages+client+ui-primitives)(@deepseek-ai/dsh-client-ui-settings@packages+client+ui-settings)(@deepseek-ai/dsh-client-ui-slots@packages+client+ui-slots)(@deepseek-ai/dsh-invariants@packages+runtime-diagnostics+invariants)(@deepseek-ai/dsh-llm@packages+llm+llm)(@deepseek-ai/dsh-session@packages+core+session)(@deepseek-ai/dsh-settings@packages+settings+settings)(@deepseek-ai/dsh-tools@packages+core+tools)(@deepseek-ai/dsh-typert-protocol@packages+typert+protocol)(react@18.3.1)':
     dependencies:
-      '@awiki/im-core-node': 0.1.2
+      '@awiki/im-core-node': 0.1.3
       '@deepseek-ai/cordis': link:vendor/cordis
       '@deepseek-ai/dsh-agent-default-model': link:packages/core/agent-default-model
       '@deepseek-ai/dsh-api-remotes': link:packages/api/remotes
@@ -16270,35 +16326,35 @@ snapshots:
       '@deepseek-ai/dsh-invariants': link:packages/runtime-diagnostics/invariants
       '@deepseek-ai/dsh-llm': link:packages/llm/llm
       '@deepseek-ai/dsh-session': link:packages/core/session
-      '@deepseek-ai/dsh-settings': 0.1.0-rc.6(@deepseek-ai/cordis@vendor+cordis)(@deepseek-ai/dsh-brand@packages+util+brand)(@deepseek-ai/dsh-invariants@packages+runtime-diagnostics+invariants)(@deepseek-ai/schemastery@vendor+schemastery)
+      '@deepseek-ai/dsh-settings': link:packages/settings/settings
       '@deepseek-ai/dsh-tools': link:packages/core/tools
       '@deepseek-ai/dsh-typert-protocol': link:packages/typert/protocol
       '@deepseek-ai/schemastery': link:vendor/schemastery
       react: 18.3.1
       zod: 4.4.3
 
-  '@awiki/im-core-node-darwin-arm64@0.1.2':
+  '@awiki/im-core-node-darwin-arm64@0.1.3':
     optional: true
 
-  '@awiki/im-core-node-darwin-x64@0.1.2':
+  '@awiki/im-core-node-darwin-x64@0.1.3':
     optional: true
 
-  '@awiki/im-core-node-linux-arm64-gnu@0.1.2':
+  '@awiki/im-core-node-linux-arm64-gnu@0.1.3':
     optional: true
 
-  '@awiki/im-core-node-linux-x64-gnu@0.1.2':
+  '@awiki/im-core-node-linux-x64-gnu@0.1.3':
     optional: true
 
-  '@awiki/im-core-node-win32-x64-msvc@0.1.2':
+  '@awiki/im-core-node-win32-x64-msvc@0.1.3':
     optional: true
 
-  '@awiki/im-core-node@0.1.2':
+  '@awiki/im-core-node@0.1.3':
     optionalDependencies:
-      '@awiki/im-core-node-darwin-arm64': 0.1.2
-      '@awiki/im-core-node-darwin-x64': 0.1.2
-      '@awiki/im-core-node-linux-arm64-gnu': 0.1.2
-      '@awiki/im-core-node-linux-x64-gnu': 0.1.2
-      '@awiki/im-core-node-win32-x64-msvc': 0.1.2
+      '@awiki/im-core-node-darwin-arm64': 0.1.3
+      '@awiki/im-core-node-darwin-x64': 0.1.3
+      '@awiki/im-core-node-linux-arm64-gnu': 0.1.3
+      '@awiki/im-core-node-linux-x64-gnu': 0.1.3
+      '@awiki/im-core-node-win32-x64-msvc': 0.1.3
 
   '@aws-crypto/crc32@5.2.0':
     dependencies:
@@ -16706,13 +16762,6 @@ snapshots:
       css-tree: 3.2.1
 
   '@csstools/css-tokenizer@4.0.0': {}
-
-  '@deepseek-ai/dsh-settings@0.1.0-rc.6(@deepseek-ai/cordis@vendor+cordis)(@deepseek-ai/dsh-brand@packages+util+brand)(@deepseek-ai/dsh-invariants@packages+runtime-diagnostics+invariants)(@deepseek-ai/schemastery@vendor+schemastery)':
-    dependencies:
-      '@deepseek-ai/cordis': link:vendor/cordis
-      '@deepseek-ai/dsh-brand': link:packages/util/brand
-      '@deepseek-ai/dsh-invariants': link:packages/runtime-diagnostics/invariants
-      '@deepseek-ai/schemastery': link:vendor/schemastery
 
   '@docsearch/css@3.8.2': {}
 
@@ -19084,13 +19133,14 @@ snapshots:
     transitivePeerDependencies:
       - typescript
 
-  '@vueuse/integrations@12.8.2(focus-trap@7.8.0)(typescript@6.0.3)':
+  '@vueuse/integrations@12.8.2(focus-trap@7.8.0)(qrcode@1.5.4)(typescript@6.0.3)':
     dependencies:
       '@vueuse/core': 12.8.2(typescript@6.0.3)
       '@vueuse/shared': 12.8.2(typescript@6.0.3)
       vue: 3.5.39(typescript@6.0.3)
     optionalDependencies:
       focus-trap: 7.8.0
+      qrcode: 1.5.4
     transitivePeerDependencies:
       - typescript
 
@@ -19513,6 +19563,9 @@ snapshots:
       call-bind-apply-helpers: 1.0.2
       get-intrinsic: 1.3.0
 
+  camelcase@5.3.1:
+    optional: true
+
   caniuse-lite@1.0.30001806: {}
 
   ccount@2.0.1: {}
@@ -19562,6 +19615,13 @@ snapshots:
       string-width: 5.1.2
 
   cli-width@4.1.0: {}
+
+  cliui@6.0.0:
+    dependencies:
+      string-width: 4.2.3
+      strip-ansi: 6.0.1
+      wrap-ansi: 6.2.0
+    optional: true
 
   cliui@8.0.1:
     dependencies:
@@ -19871,6 +19931,9 @@ snapshots:
     dependencies:
       ms: 2.1.3
 
+  decamelize@1.2.0:
+    optional: true
+
   decimal.js@10.6.0: {}
 
   decode-named-character-reference@1.3.0:
@@ -19923,6 +19986,9 @@ snapshots:
   diff@8.0.4: {}
 
   diff@9.0.0: {}
+
+  dijkstrajs@1.0.3:
+    optional: true
 
   dir-compare@4.2.0:
     dependencies:
@@ -20524,6 +20590,12 @@ snapshots:
   find-up@2.1.0:
     dependencies:
       locate-path: 2.0.0
+
+  find-up@4.1.0:
+    dependencies:
+      locate-path: 5.0.0
+      path-exists: 4.0.0
+    optional: true
 
   find-up@5.0.0:
     dependencies:
@@ -21344,6 +21416,11 @@ snapshots:
       p-locate: 2.0.0
       path-exists: 3.0.0
 
+  locate-path@5.0.0:
+    dependencies:
+      p-locate: 4.1.0
+    optional: true
+
   locate-path@6.0.0:
     dependencies:
       p-locate: 5.0.0
@@ -22157,6 +22234,11 @@ snapshots:
     dependencies:
       p-try: 1.0.0
 
+  p-limit@2.3.0:
+    dependencies:
+      p-try: 2.2.0
+    optional: true
+
   p-limit@3.1.0:
     dependencies:
       yocto-queue: 0.1.0
@@ -22164,6 +22246,11 @@ snapshots:
   p-locate@2.0.0:
     dependencies:
       p-limit: 1.3.0
+
+  p-locate@4.1.0:
+    dependencies:
+      p-limit: 2.3.0
+    optional: true
 
   p-locate@5.0.0:
     dependencies:
@@ -22175,6 +22262,9 @@ snapshots:
       retry: 0.13.1
 
   p-try@1.0.0: {}
+
+  p-try@2.2.0:
+    optional: true
 
   package-json-from-dist@1.0.1: {}
 
@@ -22296,6 +22386,9 @@ snapshots:
       minimist: 1.2.8
       pngjs: 7.0.0
 
+  pngjs@5.0.0:
+    optional: true
+
   pngjs@7.0.0: {}
 
   points-on-curve@0.2.0: {}
@@ -22390,6 +22483,13 @@ snapshots:
       tslib: 2.8.1
 
   pvutils@1.2.0: {}
+
+  qrcode@1.5.4:
+    dependencies:
+      dijkstrajs: 1.0.3
+      pngjs: 5.0.0
+      yargs: 15.4.1
+    optional: true
 
   qs@6.15.3:
     dependencies:
@@ -22491,6 +22591,9 @@ snapshots:
   require-directory@2.1.1: {}
 
   require-from-string@2.0.2: {}
+
+  require-main-filename@2.0.0:
+    optional: true
 
   resedit@1.7.2:
     dependencies:
@@ -22737,6 +22840,9 @@ snapshots:
       send: 1.2.1
     transitivePeerDependencies:
       - supports-color
+
+  set-blocking@2.0.0:
+    optional: true
 
   setimmediate@1.0.5: {}
 
@@ -23326,14 +23432,14 @@ snapshots:
       tsx: 4.22.4
       yaml: 2.9.0
 
-  vitepress-plugin-mermaid@2.0.17(mermaid@11.16.0)(vitepress@1.6.4(@algolia/client-search@5.55.2)(@types/node@25.9.3)(@types/react@18.3.31)(lightningcss@1.32.0)(postcss@8.5.15)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.17.3)(terser@5.50.0)(typescript@6.0.3)):
+  vitepress-plugin-mermaid@2.0.17(mermaid@11.16.0)(vitepress@1.6.4(@algolia/client-search@5.55.2)(@types/node@25.9.3)(@types/react@18.3.31)(lightningcss@1.32.0)(postcss@8.5.15)(qrcode@1.5.4)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.17.3)(terser@5.50.0)(typescript@6.0.3)):
     dependencies:
       mermaid: 11.16.0
-      vitepress: 1.6.4(@algolia/client-search@5.55.2)(@types/node@25.9.3)(@types/react@18.3.31)(lightningcss@1.32.0)(postcss@8.5.15)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.17.3)(terser@5.50.0)(typescript@6.0.3)
+      vitepress: 1.6.4(@algolia/client-search@5.55.2)(@types/node@25.9.3)(@types/react@18.3.31)(lightningcss@1.32.0)(postcss@8.5.15)(qrcode@1.5.4)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.17.3)(terser@5.50.0)(typescript@6.0.3)
     optionalDependencies:
       '@mermaid-js/mermaid-mindmap': 9.3.0
 
-  vitepress@1.6.4(@algolia/client-search@5.55.2)(@types/node@25.9.3)(@types/react@18.3.31)(lightningcss@1.32.0)(postcss@8.5.15)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.17.3)(terser@5.50.0)(typescript@6.0.3):
+  vitepress@1.6.4(@algolia/client-search@5.55.2)(@types/node@25.9.3)(@types/react@18.3.31)(lightningcss@1.32.0)(postcss@8.5.15)(qrcode@1.5.4)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.17.3)(terser@5.50.0)(typescript@6.0.3):
     dependencies:
       '@docsearch/css': 3.8.2
       '@docsearch/js': 3.8.2(@algolia/client-search@5.55.2)(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.17.3)
@@ -23346,7 +23452,7 @@ snapshots:
       '@vue/devtools-api': 7.7.10
       '@vue/shared': 3.5.39
       '@vueuse/core': 12.8.2(typescript@6.0.3)
-      '@vueuse/integrations': 12.8.2(focus-trap@7.8.0)(typescript@6.0.3)
+      '@vueuse/integrations': 12.8.2(focus-trap@7.8.0)(qrcode@1.5.4)(typescript@6.0.3)
       focus-trap: 7.8.0
       mark.js: 8.11.1
       minisearch: 7.2.0
@@ -23605,6 +23711,9 @@ snapshots:
 
   which-command@0.1.0: {}
 
+  which-module@2.0.1:
+    optional: true
+
   which@1.3.1:
     dependencies:
       isexe: 2.0.0
@@ -23661,6 +23770,9 @@ snapshots:
   xtend@4.0.2:
     optional: true
 
+  y18n@4.0.3:
+    optional: true
+
   y18n@5.0.8: {}
 
   yallist@3.1.1: {}
@@ -23671,7 +23783,28 @@ snapshots:
 
   yaml@2.9.0: {}
 
+  yargs-parser@18.1.3:
+    dependencies:
+      camelcase: 5.3.1
+      decamelize: 1.2.0
+    optional: true
+
   yargs-parser@21.1.1: {}
+
+  yargs@15.4.1:
+    dependencies:
+      cliui: 6.0.0
+      decamelize: 1.2.0
+      find-up: 4.1.0
+      get-caller-file: 2.0.5
+      require-directory: 2.1.1
+      require-main-filename: 2.0.0
+      set-blocking: 2.0.0
+      string-width: 4.2.3
+      which-module: 2.0.1
+      y18n: 4.0.3
+      yargs-parser: 18.1.3
+    optional: true
 
   yargs@17.7.3:
     dependencies:

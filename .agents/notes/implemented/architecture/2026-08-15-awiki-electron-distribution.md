@@ -10,7 +10,7 @@ The standalone AWiki plugin needs a default DeepSeek Harness composition and rep
 
 ## Decision
 
-Add the released `@awiki/dsh` bundle to the shipped Web profile after the Web application layer and migrate only the exact previous stock tuple. Existing customized profile bundle lists remain unchanged. Expose the plugin's `awiki` settings namespace through the product settings API.
+Add the released canonical `@awiki/dsh-plugin` bundle to the shipped Web profile after the Web application layer. Migrate only the exact previous stock tuple containing the retired `@awiki/dsh` name; existing customized profile bundle lists remain unchanged. Expose the plugin's `awiki` settings namespace through the product settings API.
 
 Promote the prior loopback Electron acceptance shell into a cross-platform distribution. It owns the existing CLI Host as a child process, loads only its canonical `127.0.0.1` origin in a sandboxed renderer, and rebuilds native modules for the target Electron ABI. The build bundles every main-process dependency except Electron and rejects a generated entrypoint that retains another bare package import. It stores the production dependency closure as one compressed resource so installer tooling never needs to enumerate deep third-party dependency paths. First launch atomically extracts a versioned runtime under Electron user data; later launches reuse the validated extraction. GitHub Actions builds arm64 and Intel x64 macOS DMG/ZIP installers plus the x64 Windows NSIS assisted installer on native runners matching each target architecture.
 

@@ -2,5 +2,5 @@
 # side as of the last confirmed-consistent state. Both languages carry equal authority;
 # after editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/feature/2026-08-16-guided-windows-installer.md
-2026-08-16-guided-windows-installer.md: d9c9d567efdd49084391115648feef21cb255505
-2026-08-16-guided-windows-installer.zh.md: e0f608b97a6ec41fc230d33d0957981ae11e2454
+2026-08-16-guided-windows-installer.md: 25e4327f57a3d2757b9c17bc9d9146acbd9aa314
+2026-08-16-guided-windows-installer.zh.md: 379e18b525ec4034a0bd5f1548098f2274e143e6

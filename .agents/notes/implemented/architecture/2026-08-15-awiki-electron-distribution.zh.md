@@ -10,7 +10,7 @@ Status: implemented
 
 ## 决策
 
-在 Web 应用层之后把已发布的 `@awiki/dsh` bundle 加入出厂 Web profile，并且只迁移上一版完全一致的出厂 tuple。用户自定义过的 bundle 列表保持不变。插件的 `awiki` 设置 namespace 通过产品设置 API 暴露。
+在 Web 应用层之后把已发布的规范包 `@awiki/dsh-plugin` bundle 加入出厂 Web profile。只迁移包含已停用包名 `@awiki/dsh` 的上一版完全一致出厂 tuple；用户自定义过的 bundle 列表保持不变。插件的 `awiki` 设置 namespace 通过产品设置 API 暴露。
 
 把此前的回环 Electron 验收壳层提升为跨平台发行版。它拥有现有 CLI Host 子进程，只在启用 sandbox 的渲染进程中加载规范的 `127.0.0.1` origin，并针对目标 Electron ABI 重建原生模块。构建会把 Electron 之外的所有主进程依赖打入 bundle，并拒绝仍然保留其他裸包导入的生成入口。构建把生产依赖闭包保存为单个压缩资源，使安装器工具无需枚举层级很深的第三方依赖路径。首次启动时在 Electron 用户数据目录中原子解压带版本的运行时，后续启动复用经过验证的解压结果。GitHub Actions 使用与目标架构一致的原生 runner 构建 arm64 和 Intel x64 macOS DMG/ZIP，以及 x64 Windows NSIS 引导式安装程序。
 

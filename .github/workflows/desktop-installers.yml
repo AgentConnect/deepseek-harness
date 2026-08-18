@@ -145,14 +145,14 @@ jobs:
             throw "Expected one Windows installer, found $($installers.Count)."
           }
           $cliManifest = Get-Content apps/cli/package.json -Raw | ConvertFrom-Json
-          $expectedAwikiVersion = '0.2.0-rc.2'
-          if ($cliManifest.dependencies.'@awiki/dsh' -ne $expectedAwikiVersion) {
-            throw "Expected apps/cli/package.json to depend on @awiki/dsh $expectedAwikiVersion."
+          $expectedAwikiVersion = '0.2.4'
+          if ($cliManifest.dependencies.'@awiki/dsh-plugin' -ne $expectedAwikiVersion) {
+            throw "Expected apps/cli/package.json to depend on @awiki/dsh-plugin $expectedAwikiVersion."
           }
-          $runtimeManifestJson = tar -xOf experiments/electron/.forge-runtime.tar.gz ./node_modules/@awiki/dsh/package.json
+          $runtimeManifestJson = tar -xOf experiments/electron/.forge-runtime.tar.gz ./node_modules/@awiki/dsh-plugin/package.json
           $runtimeManifest = $runtimeManifestJson -join "`n" | ConvertFrom-Json
           if ($runtimeManifest.version -ne $expectedAwikiVersion) {
-            throw "Packaged @awiki/dsh version $($runtimeManifest.version) does not match $expectedAwikiVersion."
+            throw "Packaged @awiki/dsh-plugin version $($runtimeManifest.version) does not match $expectedAwikiVersion."
           }
           $installer = $installers[0]
           $hash = Get-FileHash $installer.FullName -Algorithm SHA256
@@ -162,7 +162,7 @@ jobs:
             "- File: ``$($installer.Name)``"
             "- Size: ``$($installer.Length) bytes``"
             "- SHA-256: ``$($hash.Hash)``"
-            "- Bundled @awiki/dsh: ``$($runtimeManifest.version)``"
+            "- Bundled @awiki/dsh-plugin: ``$($runtimeManifest.version)``"
           ) | Add-Content $env:GITHUB_STEP_SUMMARY
       - uses: actions/upload-artifact@v4
         with:

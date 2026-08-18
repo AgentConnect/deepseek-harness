@@ -30,9 +30,11 @@ const electronManifest = JSON.parse(
   }
   scripts: Record<string, string>
 }
-const workflow = load(
-  readFileSync(new URL('../../../.github/workflows/desktop-installers.yml', import.meta.url), 'utf8'),
-) as DesktopInstallerWorkflow
+const cliManifest = JSON.parse(readFileSync(new URL('../../../apps/cli/package.json', import.meta.url), 'utf8')) as {
+  dependencies: Record<string, string>
+}
+const workflowText = readFileSync(new URL('../../../.github/workflows/desktop-installers.yml', import.meta.url), 'utf8')
+const workflow = load(workflowText) as DesktopInstallerWorkflow
 
 describe('desktop installer architecture matrix', () => {
   it('keeps separate native macOS commands for Apple Silicon and Intel', () => {
@@ -72,5 +74,13 @@ describe('desktop installer architecture matrix', () => {
       createDesktopShortcut: true,
       createStartMenuShortcut: true,
     })
+  })
+
+  it('packages the canonical public AWiki plugin and verifies its exact version', () => {
+    expect(cliManifest.dependencies['@awiki/dsh-plugin']).toBe('0.2.4')
+    expect(cliManifest.dependencies['@awiki/dsh']).toBeUndefined()
+    expect(workflowText).toContain("$expectedAwikiVersion = '0.2.4'")
+    expect(workflowText).toContain('./node_modules/@awiki/dsh-plugin/package.json')
+    expect(workflowText).not.toContain('./node_modules/@awiki/dsh/package.json')
   })
 })
