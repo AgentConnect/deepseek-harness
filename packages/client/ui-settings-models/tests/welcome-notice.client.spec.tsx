@@ -50,6 +50,7 @@ function mount(version?: string, mutateImpl: () => Promise<unknown> = () => Prom
   const props: WelcomeNoticeProps = {
     stepId: 'welcome-notice',
     complete,
+    dismiss: vi.fn(),
     openSection: vi.fn(),
     useSessions: unusedHook,
     useWorkspaces: unusedHook,

@@ -106,6 +106,7 @@ export function SettingsRoot(props: SettingsRootComponentProps) {
   const [open, setOpen] = useState(false)
   const [activeId, setActiveId] = useState<string | undefined>(undefined)
   const [completedOnboarding, setCompletedOnboarding] = useState<ReadonlySet<string>>(() => new Set())
+  const [onboardingDismissed, setOnboardingDismissed] = useState(false)
   const close = useCallback(() => {
     setOpen(false)
     setActiveId(undefined)
@@ -123,13 +124,14 @@ export function SettingsRoot(props: SettingsRootComponentProps) {
   const onboardingActive = useSessions(state =>
     state.phase === 'ready'
     && (state.current === undefined || state.byId[state.current]?.blank === true))
-  const onboardingStep = onboardingActive
+  const onboardingStep = onboardingActive && !onboardingDismissed
     ? onboardingSteps.find(step => !completedOnboarding.has(step.id))
     : undefined
 
   useEffect(() => {
     if (onboardingActive) return
     setCompletedOnboarding(new Set())
+    setOnboardingDismissed(false)
   }, [onboardingActive])
 
   const completeOnboardingStep = useCallback((id: string) => {
@@ -165,6 +167,7 @@ export function SettingsRoot(props: SettingsRootComponentProps) {
       {onboardingStep !== undefined && renderSlot('settings.onboarding', {
         stepId: onboardingStep.id,
         complete: () => { completeOnboardingStep(onboardingStep.id) },
+        dismiss: () => { setOnboardingDismissed(true) },
         openSection,
       }, { only: onboardingStep.id })}
     </>

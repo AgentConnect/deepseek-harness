@@ -227,6 +227,18 @@ describe('SettingsPanel navigation', () => {
     expect(inactive).toHaveLength(0)
   })
 
+  it('dismisses every remaining step for the current onboarding pass', () => {
+    const { renderSlot } = mount()
+    const first = renderSlot.mock.calls.find(call => call[0] === 'settings.onboarding')
+    expect(first?.[1]).toMatchObject({ stepId: 'welcome', dismiss: expect.any(Function) })
+
+    act(() => {
+      (first?.[1] as { dismiss: () => void }).dismiss()
+    })
+
+    expect(renderSlot.mock.calls.filter(call => call[0] === 'settings.onboarding')).toHaveLength(1)
+  })
+
   it('paints no takeover chrome of its own around the mounted step', () => {
     // The chrome (mask, opaque stage, #root inert) belongs to the step via
     // the step-owned dialog surface — a mounted-but-deciding step that

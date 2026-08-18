@@ -130,6 +130,8 @@ export interface SettingsOnboardingOwnerProps {
   stepId: string
   /** Complete or skip this step and transfer ownership to the next entry. */
   complete: () => void
+  /** Dismiss every remaining step for the current onboarding pass. */
+  dismiss: () => void
   /** Open the settings panel directly on one registered section. */
   openSection: (id: string) => void
 }

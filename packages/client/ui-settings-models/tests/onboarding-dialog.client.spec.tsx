@@ -127,10 +127,12 @@ function harness(options: {
   const controller = new ModelsSettingsStore(face as never)
   const openSection = vi.fn()
   const complete = vi.fn()
+  const dismiss = vi.fn()
   const unusedHook = (() => { throw new Error('unused standard hook') }) as never
   const props: DeepSeekOnboardingDialogProps = {
     stepId: 'deepseek-official',
     complete,
+    dismiss,
     openSection,
     useSessions: unusedHook,
     useWorkspaces: unusedHook,
@@ -140,7 +142,7 @@ function harness(options: {
     t: key => en[key],
   }
   return {
-    controller, complete, openSection, props, mutate, set,
+    controller, complete, dismiss, openSection, props, mutate, set,
     configure: () => { fileConfigured = true },
   }
 }
