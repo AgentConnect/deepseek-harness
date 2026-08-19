@@ -20,7 +20,7 @@ To test an unpublished packed plugin without changing committed dependencies, cr
 }
 ```
 
-`start:dev` builds the workspace first, then validates and mounts each packed package immediately before Electron starts. The override resolves declared dependencies from the installed public package's locked closure and the CLI workspace, so run `pnpm install --frozen-lockfile` once if that package is not installed. A missing configuration uses the public dependencies; invalid JSON, undeclared package names, missing archives, archive package-name mismatches, and missing installed dependencies stop the launch. Extracted packages and their generated dependency links remain under the ignored `.dev-package-overrides/` directory, separate from `.dev-state`, so clearing first-run application data does not discard package overrides. Manifests, the lockfile, installers, and normal `start` launches continue to use public dependencies.
+`start:dev` builds the workspace first, then validates and mounts each packed package immediately before Electron starts. The override resolves declared dependencies from the installed public package's locked closure and the CLI workspace, so run `pnpm install --frozen-lockfile` once if that package is not installed. A missing configuration uses the public dependencies; invalid JSON, undeclared package names, missing archives, archive package-name mismatches, and missing installed dependencies stop the launch. Extracted packages and their generated dependency links remain under the ignored `.dev-package-overrides/` directory, separate from `.dev-state`, so clearing first-run application data does not discard package overrides. Manifests, the lockfile, normal `start` launches, and release packaging commands continue to use public dependencies.
 
 ## Build installers
 
@@ -30,7 +30,24 @@ pnpm --filter deepseek-harness-electron make:mac:x64
 pnpm --filter deepseek-harness-electron make:windows
 ```
 
-The macOS commands produce DMG and ZIP installers for Apple Silicon arm64 and Intel x64 respectively. Run each command on a native runner matching its target architecture. The Windows command produces an x64 NSIS assisted installer and must run on Windows. Its wizard lets the user choose the installation directory and creates Desktop and Start menu shortcuts. All commands build DSH, verify that the Electron main process has no unpackaged runtime dependencies, stage the production runtime, rebuild native modules for Electron's ABI, archive that runtime as one installer-safe resource, and generate platform icons. The DMG volume icon uses the product icon. On first launch the shell atomically extracts the versioned runtime under Electron's user-data directory and reuses it on subsequent launches.
+The macOS commands produce DMG and ZIP installers for Apple Silicon arm64 and Intel x64 respectively. Formal builds run each command on a native runner matching its target architecture. The Windows command produces an x64 NSIS assisted installer and must run on Windows. Its wizard lets the user choose the installation directory and creates Desktop and Start menu shortcuts. All commands build DSH, verify that the Electron main process has no unpackaged runtime dependencies, stage the production runtime for an explicit platform and architecture, rebuild native modules for Electron's ABI, archive that runtime as one installer-safe resource, and generate platform icons. macOS builds also verify the outer executable and every staged Mach-O file against the requested architecture, compare runtime provenance with the build mode, and check the DMG and ZIP containers. The DMG volume icon uses the product icon. On first launch the shell atomically extracts the versioned runtime under Electron's user-data directory and reuses it on subsequent launches.
+
+Use an explicit `:local` command only when an installer must contain the packed archives from `.dev-package-overrides.json`:
+
+```sh
+pnpm --filter deepseek-harness-electron make:mac:local
+pnpm --filter deepseek-harness-electron make:mac:x64:local
+```
+
+These commands require at least one configured archive, require every non-optional dependency and peer to exist in the lockfile-derived staged runtime, and never install an additional dependency while packaging. The runtime records the target, packed archive SHA-256, package version, and installed package digest; post-build verification compares those values with the current configuration and packaged files. The commands without `:local` ignore `.dev-package-overrides.json` and reject an artifact that unexpectedly contains a local override.
+
+An Apple Silicon Mac can create an unsigned Intel integration-test installer directly. The packaging pipeline passes the x64 target explicitly to every target-sensitive stage, so the host Node process remains native arm64:
+
+```sh
+pnpm --filter deepseek-harness-electron make:mac:x64:local
+```
+
+The Intel DMG is written to `experiments/electron/out/make/DeepSeek Harness-0.1.1-x64.dmg`; the ZIP is under `experiments/electron/out/make/zip/darwin/x64/`. `package:mac:x64:local` performs the same staging and architecture checks but stops at the unpacked `.app`, while `make:mac:x64:local` also creates and verifies the DMG and ZIP.
 
 The `Desktop installers` GitHub Actions workflow runs the same commands on native runners. Start it with `Run workflow` to build the installers manually. The Windows job verifies the installer configuration and bundled `@awiki/dsh-plugin` version, publishes the EXE size and SHA-256 in the run summary, and uploads the EXE as the `deepseek-harness-windows-x64` artifact for 14 days.
 

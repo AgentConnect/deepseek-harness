@@ -20,7 +20,7 @@ pnpm --filter deepseek-harness-electron start:dev
 }
 ```
 
-`start:dev` 会先构建工作区，再在 Electron 启动前校验并挂载每个打包产物。覆盖包从已安装公开包的锁定闭包和 CLI 工作区解析其已声明依赖；如果该包尚未安装，需先运行一次 `pnpm install --frozen-lockfile`。配置文件不存在时使用公开依赖；JSON 无效、包名未在 CLI 依赖中声明、归档缺失、归档内包名不匹配或已安装依赖缺失时，启动会直接失败。解压后的包及其生成的依赖链接保存在已忽略的 `.dev-package-overrides/` 目录中，与 `.dev-state` 分离，因此清除首次启动的应用数据不会丢失包覆盖配置。manifest、lockfile、安装包和普通 `start` 启动仍使用公开依赖。
+`start:dev` 会先构建工作区，再在 Electron 启动前校验并挂载每个打包产物。覆盖包从已安装公开包的锁定闭包和 CLI 工作区解析其已声明依赖；如果该包尚未安装，需先运行一次 `pnpm install --frozen-lockfile`。配置文件不存在时使用公开依赖；JSON 无效、包名未在 CLI 依赖中声明、归档缺失、归档内包名不匹配或已安装依赖缺失时，启动会直接失败。解压后的包及其生成的依赖链接保存在已忽略的 `.dev-package-overrides/` 目录中，与 `.dev-state` 分离，因此清除首次启动的应用数据不会丢失包覆盖配置。manifest、lockfile、普通 `start` 启动和正式发行打包命令仍使用公开依赖。
 
 ## 构建安装包
 
@@ -30,7 +30,24 @@ pnpm --filter deepseek-harness-electron make:mac:x64
 pnpm --filter deepseek-harness-electron make:windows
 ```
 
-两个 macOS 命令分别生成 Apple Silicon arm64 和 Intel x64 的 DMG 与 ZIP，且应在与目标架构一致的原生 runner 上运行。Windows 命令生成 x64 NSIS 引导式安装程序，必须在 Windows 环境执行。安装向导允许用户选择安装目录，并创建桌面和开始菜单快捷方式。所有命令都会构建 DSH、验证 Electron 主进程不存在未打包的运行时依赖、暂存生产运行时、针对 Electron ABI 重建原生模块、把运行时封装为单个适合安装器的资源，并生成平台图标。DMG 卷宗图标使用产品图标。首次启动时，壳层会把带版本的运行时原子解压到 Electron 用户数据目录，后续启动直接复用。
+两个 macOS 命令分别生成 Apple Silicon arm64 和 Intel x64 的 DMG 与 ZIP。正式构建应在与目标架构一致的原生 runner 上运行。Windows 命令生成 x64 NSIS 引导式安装程序，必须在 Windows 环境执行。安装向导允许用户选择安装目录，并创建桌面和开始菜单快捷方式。所有命令都会构建 DSH、验证 Electron 主进程不存在未打包的运行时依赖、按显式指定的平台和架构暂存生产运行时、针对 Electron ABI 重建原生模块、把运行时封装为单个适合安装器的资源，并生成平台图标。macOS 构建还会核对外层可执行文件和暂存运行时内每个 Mach-O 文件的目标架构，比较运行时来源记录与构建模式，并检查 DMG 和 ZIP 容器。DMG 卷宗图标使用产品图标。首次启动时，壳层会把带版本的运行时原子解压到 Electron 用户数据目录，后续启动直接复用。
+
+只有在安装包必须包含 `.dev-package-overrides.json` 中的本地插件归档时，才使用带 `:local` 的显式命令：
+
+```sh
+pnpm --filter deepseek-harness-electron make:mac:local
+pnpm --filter deepseek-harness-electron make:mac:x64:local
+```
+
+这些命令要求至少配置一个归档，要求所有非可选依赖和 peer 都已存在于从 lockfile 暂存的运行时中，而且打包期间绝不会额外安装依赖。运行时会记录目标平台和架构、归档 SHA-256、包版本和安装后包摘要；构建后的校验会把这些值与当前配置及安装包内容逐项比较。不带 `:local` 的命令会忽略 `.dev-package-overrides.json`，并拒绝意外包含本地覆盖的产物。
+
+Apple Silicon Mac 可以直接生成未签名的 Intel 联调安装包。打包流程会把 x64 目标显式传给所有与目标架构有关的阶段，因此宿主 Node 进程继续使用原生 arm64：
+
+```sh
+pnpm --filter deepseek-harness-electron make:mac:x64:local
+```
+
+Intel DMG 会写入 `experiments/electron/out/make/DeepSeek Harness-0.1.1-x64.dmg`，ZIP 位于 `experiments/electron/out/make/zip/darwin/x64/`。`package:mac:x64:local` 使用相同的暂存和架构校验，但只生成未封装的 `.app`；`make:mac:x64:local` 还会生成并校验 DMG 和 ZIP。
 
 `Desktop installers` GitHub Actions 工作流在原生 runner 上运行相同命令。通过 `Run workflow` 可以手动构建安装包。Windows job 验证安装程序配置和内置的 `@awiki/dsh-plugin` 版本，在运行摘要中发布 EXE 大小和 SHA-256，并将 EXE 作为 `deepseek-harness-windows-x64` artifact（产物）保留 14 天。
 

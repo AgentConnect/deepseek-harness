@@ -14,17 +14,22 @@
   "scripts": {
     "generate-icons": "node scripts/generate-icons.mjs",
     "verify-main-bundle": "node scripts/verify-main-bundle.mjs",
+    "prepare:desktop": "pnpm --dir ../.. run build && pnpm run verify-main-bundle && pnpm run generate-icons",
     "start:dev": "node scripts/start-dev.mjs",
     "start": "pnpm --dir ../.. run build && pnpm run verify-main-bundle && pnpm run generate-icons && electron-forge start",
     "start:built": "pnpm run verify-main-bundle && pnpm run generate-icons && electron-forge start",
     "stage-runtime": "node scripts/stage-runtime.mjs",
     "notarize:mac:dmgs": "node scripts/notarize-macos-dmgs.mjs out/make",
-    "package:mac": "pnpm --dir ../.. run build && pnpm run verify-main-bundle && pnpm run generate-icons && pnpm run stage-runtime && electron-forge package --platform=darwin --arch=arm64",
-    "make:mac": "pnpm --dir ../.. run build && pnpm run verify-main-bundle && pnpm run generate-icons && pnpm run stage-runtime && electron-forge make --platform=darwin --arch=arm64",
-    "package:mac:x64": "pnpm --dir ../.. run build && pnpm run verify-main-bundle && pnpm run generate-icons && pnpm run stage-runtime && electron-forge package --platform=darwin --arch=x64",
-    "make:mac:x64": "pnpm --dir ../.. run build && pnpm run verify-main-bundle && pnpm run generate-icons && pnpm run stage-runtime && electron-forge make --platform=darwin --arch=x64",
-    "package:windows": "pnpm --dir ../.. run build && pnpm run verify-main-bundle && pnpm run generate-icons && pnpm run stage-runtime && electron-builder --win dir --x64",
-    "make:windows": "pnpm --dir ../.. run build && pnpm run verify-main-bundle && pnpm run generate-icons && pnpm run stage-runtime && electron-builder --win nsis --x64"
+    "package:mac": "pnpm run prepare:desktop && node scripts/stage-runtime.mjs --platform=darwin --arch=arm64 && electron-forge package --platform=darwin --arch=arm64 && node scripts/verify-macos-artifacts.mjs --platform=darwin --arch=arm64 --package-only",
+    "package:mac:local": "pnpm run prepare:desktop && node scripts/stage-runtime.mjs --platform=darwin --arch=arm64 --local-overrides && electron-forge package --platform=darwin --arch=arm64 && node scripts/verify-macos-artifacts.mjs --platform=darwin --arch=arm64 --local-overrides --package-only",
+    "make:mac": "pnpm run prepare:desktop && node scripts/stage-runtime.mjs --platform=darwin --arch=arm64 && electron-forge make --platform=darwin --arch=arm64 && node scripts/verify-macos-artifacts.mjs --platform=darwin --arch=arm64",
+    "make:mac:local": "pnpm run prepare:desktop && node scripts/stage-runtime.mjs --platform=darwin --arch=arm64 --local-overrides && electron-forge make --platform=darwin --arch=arm64 && node scripts/verify-macos-artifacts.mjs --platform=darwin --arch=arm64 --local-overrides",
+    "package:mac:x64": "pnpm run prepare:desktop && node scripts/stage-runtime.mjs --platform=darwin --arch=x64 && electron-forge package --platform=darwin --arch=x64 && node scripts/verify-macos-artifacts.mjs --platform=darwin --arch=x64 --package-only",
+    "package:mac:x64:local": "pnpm run prepare:desktop && node scripts/stage-runtime.mjs --platform=darwin --arch=x64 --local-overrides && electron-forge package --platform=darwin --arch=x64 && node scripts/verify-macos-artifacts.mjs --platform=darwin --arch=x64 --local-overrides --package-only",
+    "make:mac:x64": "pnpm run prepare:desktop && node scripts/stage-runtime.mjs --platform=darwin --arch=x64 && electron-forge make --platform=darwin --arch=x64 && node scripts/verify-macos-artifacts.mjs --platform=darwin --arch=x64",
+    "make:mac:x64:local": "pnpm run prepare:desktop && node scripts/stage-runtime.mjs --platform=darwin --arch=x64 --local-overrides && electron-forge make --platform=darwin --arch=x64 && node scripts/verify-macos-artifacts.mjs --platform=darwin --arch=x64 --local-overrides",
+    "package:windows": "pnpm run prepare:desktop && node scripts/stage-runtime.mjs --platform=win32 --arch=x64 && electron-builder --win dir --x64",
+    "make:windows": "pnpm run prepare:desktop && node scripts/stage-runtime.mjs --platform=win32 --arch=x64 && electron-builder --win nsis --x64"
   },
   "config": {
     "forge": "./forge.config.ts"

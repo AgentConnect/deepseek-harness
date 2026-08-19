@@ -35,11 +35,33 @@ const cliManifest = JSON.parse(readFileSync(new URL('../../../apps/cli/package.j
 }
 const workflowText = readFileSync(new URL('../../../.github/workflows/desktop-installers.yml', import.meta.url), 'utf8')
 const workflow = load(workflowText) as DesktopInstallerWorkflow
+const stageRuntimeText = readFileSync(new URL('../scripts/stage-runtime.mjs', import.meta.url), 'utf8')
 
 describe('desktop installer architecture matrix', () => {
   it('keeps separate native macOS commands for Apple Silicon and Intel', () => {
     expect(electronManifest.scripts['make:mac']).toContain('--platform=darwin --arch=arm64')
     expect(electronManifest.scripts['make:mac:x64']).toContain('--platform=darwin --arch=x64')
+    expect(electronManifest.scripts['make:mac']).not.toContain('--local-overrides')
+    expect(electronManifest.scripts['make:mac:x64']).not.toContain('--local-overrides')
+  })
+
+  it('offers explicit local-package installers without changing release commands', () => {
+    expect(electronManifest.scripts['make:mac:local']).toContain('--platform=darwin --arch=arm64 --local-overrides')
+    expect(electronManifest.scripts['make:mac:x64:local']).toContain('--platform=darwin --arch=x64 --local-overrides')
+    expect(electronManifest.scripts['make:mac:local']).toContain('verify-macos-artifacts.mjs')
+    expect(electronManifest.scripts['make:mac:x64:local']).toContain('verify-macos-artifacts.mjs')
+  })
+
+  it('uses the explicit runtime target for native rebuild, pruning, and signing', () => {
+    expect(stageRuntimeText).not.toContain('arch: process.arch')
+    expect(stageRuntimeText).not.toContain('pruneRuntime(stagedTarget, process.platform, process.arch)')
+    expect(stageRuntimeText).toContain('arch: runtimeTarget.arch')
+    expect(stageRuntimeText).toContain('pruneRuntime(stagedTarget, runtimeTarget.platform, runtimeTarget.arch)')
+    expect(stageRuntimeText).toContain('platform: runtimeTarget.platform')
+    expect(stageRuntimeText).toContain('`--cpu=${runtimeTarget.arch}`')
+    expect(stageRuntimeText).toContain('`--os=${runtimeTarget.platform}`')
+    expect(stageRuntimeText).toContain("'--ignore-scripts'")
+    expect(stageRuntimeText).toContain("'--prod=false'")
   })
 
   it('builds each macOS architecture on a matching GitHub-hosted runner', () => {

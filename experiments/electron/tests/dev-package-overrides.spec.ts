@@ -4,7 +4,10 @@ import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { c as createTar } from 'tar'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { applyDevelopmentPackageOverrides } from '../scripts/dev-package-overrides.mjs'
+import {
+  applyDevelopmentPackageOverrides,
+  resolveDevelopmentPackageOverrideArchives,
+} from '../scripts/dev-package-overrides.mjs'
 import { startDevelopmentApplication } from '../scripts/start-dev.mjs'
 
 const roots: string[] = []
@@ -55,6 +58,16 @@ describe('development package overrides', () => {
     expect(await readFile(join(target, 'marker.txt'), 'utf8')).toBe('local override')
     expect(await realpath(target)).toBe(await realpath(applied[0]?.packageRoot ?? ''))
     expect(applied[0]?.archivePath).toBe(fixture.archivePath)
+    expect(applied[0]?.archiveSha256).toMatch(/^[a-f0-9]{64}$/u)
+    expect(applied[0]?.version).toBe('1.0.0')
+  })
+
+  it('resolves configured archives without modifying a package resolver', async () => {
+    const fixture = await createFixture()
+
+    await expect(resolveDevelopmentPackageOverrideArchives({ repositoryRoot: fixture.root }))
+      .resolves.toEqual([{ archivePath: fixture.archivePath, name: fixture.packageName }])
+    expect(await readFile(join(fixture.publicPackage, 'marker.txt'), 'utf8')).toBe('public package')
   })
 
   it('resolves the packed package through the installed dependency closure', async () => {

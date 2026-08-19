@@ -138,8 +138,8 @@ async function installedDependencyRoot({ cliNodeModules, installedPackagePath, n
 
 async function extractPackage({ archivePath, expectedName, storageRoot }) {
   const archive = await readFile(archivePath)
-  const digest = createHash('sha256').update(archive).digest('hex')
-  const storageName = `${Buffer.from(expectedName).toString('base64url')}-${digest.slice(0, 16)}`
+  const archiveSha256 = createHash('sha256').update(archive).digest('hex')
+  const storageName = `${Buffer.from(expectedName).toString('base64url')}-${archiveSha256.slice(0, 16)}`
   const packagesRoot = join(storageRoot, 'packages')
   const packageRoot = join(packagesRoot, storageName)
   await mkdir(packagesRoot, { recursive: true })
@@ -150,7 +150,10 @@ async function extractPackage({ archivePath, expectedName, storageRoot }) {
     if (manifest.name !== expectedName) {
       throw new Error(`${packageRoot}: cached package name ${JSON.stringify(manifest.name)} does not match ${JSON.stringify(expectedName)}`)
     }
-    return { manifest, packageRoot, storageName }
+    if (typeof manifest.version !== 'string' || manifest.version === '') {
+      throw new Error(`${packageRoot}: cached package version must be a non-empty string`)
+    }
+    return { archiveSha256, manifest, packageRoot, storageName }
   }
 
   await inspectPackedArchive(archivePath)
@@ -172,8 +175,11 @@ async function extractPackage({ archivePath, expectedName, storageRoot }) {
     if (manifest.name !== expectedName) {
       throw new Error(`${archivePath}: packed package name ${JSON.stringify(manifest.name)} does not match configured name ${JSON.stringify(expectedName)}`)
     }
+    if (typeof manifest.version !== 'string' || manifest.version === '') {
+      throw new Error(`${archivePath}: packed package version must be a non-empty string`)
+    }
     await rename(stagingRoot, packageRoot)
-    return { manifest, packageRoot, storageName }
+    return { archiveSha256, manifest, packageRoot, storageName }
   } finally {
     await rm(stagingRoot, { force: true, recursive: true })
   }
@@ -322,7 +328,7 @@ async function replaceWithDirectoryLink(target, source) {
       await rename(temporary, target)
       return
     } catch (error) {
-      if (!['EEXIST', 'ENOTEMPTY', 'EPERM'].includes(error?.code)) throw error
+      if (!['EEXIST', 'EISDIR', 'ENOTEMPTY', 'EPERM'].includes(error?.code)) throw error
     }
 
     if (await pathMetadata(target) === undefined) {
@@ -347,40 +353,25 @@ async function replaceWithDirectoryLink(target, source) {
 }
 
 /**
- * Apply machine-local packed npm package overrides to the CLI runtime resolver.
- * Missing configuration is a no-op. Invalid configuration or package metadata
- * rejects before Electron starts.
+ * Resolve and validate the machine-local packed package configuration.
+ * Missing configuration is represented by an empty list.
  *
- * @param {object} options - Repository and optional test fixture paths.
+ * @param {object} options - Repository and optional configuration path.
  * @param {string} options.repositoryRoot - Absolute repository root.
  * @param {string} [options.configPath] - JSON map of package names to archive paths.
- * @param {string} [options.cliManifestPath] - CLI package manifest that declares override targets.
- * @param {string} [options.cliNodeModules] - Runtime package resolver directory.
- * @param {string} [options.storageRoot] - Ignored content-addressed extraction directory.
- * @param {(input: {repositoryRoot: string, cliPackageName: string, packageName: string}) => string} [options.resolveInstalledPackage] - Installed package lookup.
- * @param {(input: {dependencies: Record<string, string>, repositoryRoot: string, storageRoot: string}) => Promise<string>} [options.installDependencies] - Missing regular dependency installer.
- * @returns {Promise<Array<{name: string, archivePath: string, packageRoot: string}>>} Applied overrides.
+ * @returns {Promise<Array<{name: string, archivePath: string}>>} Validated archives in package-name order.
  */
-export async function applyDevelopmentPackageOverrides({
+export async function resolveDevelopmentPackageOverrideArchives({
   repositoryRoot,
   configPath = join(repositoryRoot, DEVELOPMENT_PACKAGE_OVERRIDE_CONFIG),
-  cliManifestPath = join(repositoryRoot, 'apps', 'cli', 'package.json'),
-  cliNodeModules = join(repositoryRoot, 'apps', 'cli', 'node_modules'),
-  storageRoot = join(repositoryRoot, '.dev-package-overrides'),
-  resolveInstalledPackage = resolveInstalledPackageWithPnpm,
-  installDependencies = installDependenciesWithPnpm,
 }) {
   if (!isAbsolute(repositoryRoot)) throw new Error('development package override repositoryRoot must be absolute')
   const config = await readConfig(configPath)
   if (config === undefined) return []
 
-  const cli = await readCliDependencies(cliManifestPath)
-  const prepared = []
+  const archives = []
   for (const [name, configuredPath] of Object.entries(config).sort(([left], [right]) => left.localeCompare(right))) {
     validatePackageName(name, configPath)
-    if (!cli.dependencies.has(name)) {
-      throw new Error(`${configPath}: ${JSON.stringify(name)} is not a declared CLI dependency`)
-    }
     if (typeof configuredPath !== 'string' || configuredPath.trim() === '') {
       throw new Error(`${configPath}: override for ${JSON.stringify(name)} must be a non-empty archive path`)
     }
@@ -393,6 +384,44 @@ export async function applyDevelopmentPackageOverrides({
     const metadata = await pathMetadata(archivePath)
     if (metadata === undefined || !metadata.isFile()) {
       throw new Error(`${configPath}: override archive for ${JSON.stringify(name)} is not a regular file: ${archivePath}`)
+    }
+    archives.push({ archivePath, name })
+  }
+  return archives
+}
+
+/**
+ * Apply machine-local packed npm package overrides to the CLI runtime resolver.
+ * Missing configuration is a no-op. Invalid configuration or package metadata
+ * rejects before Electron starts.
+ *
+ * @param {object} options - Repository and optional test fixture paths.
+ * @param {string} options.repositoryRoot - Absolute repository root.
+ * @param {string} [options.configPath] - JSON map of package names to archive paths.
+ * @param {string} [options.cliManifestPath] - CLI package manifest that declares override targets.
+ * @param {string} [options.cliNodeModules] - Runtime package resolver directory.
+ * @param {string} [options.storageRoot] - Ignored content-addressed extraction directory.
+ * @param {(input: {repositoryRoot: string, cliPackageName: string, packageName: string}) => string} [options.resolveInstalledPackage] - Installed package lookup.
+ * @param {(input: {dependencies: Record<string, string>, repositoryRoot: string, storageRoot: string}) => Promise<string>} [options.installDependencies] - Missing regular dependency installer.
+ * @returns {Promise<Array<{name: string, archivePath: string, archiveSha256: string, packageRoot: string, version: string}>>} Applied overrides.
+ */
+export async function applyDevelopmentPackageOverrides({
+  repositoryRoot,
+  configPath = join(repositoryRoot, DEVELOPMENT_PACKAGE_OVERRIDE_CONFIG),
+  cliManifestPath = join(repositoryRoot, 'apps', 'cli', 'package.json'),
+  cliNodeModules = join(repositoryRoot, 'apps', 'cli', 'node_modules'),
+  storageRoot = join(repositoryRoot, '.dev-package-overrides'),
+  resolveInstalledPackage = resolveInstalledPackageWithPnpm,
+  installDependencies = installDependenciesWithPnpm,
+}) {
+  const archives = await resolveDevelopmentPackageOverrideArchives({ repositoryRoot, configPath })
+  if (archives.length === 0) return []
+
+  const cli = await readCliDependencies(cliManifestPath)
+  const prepared = []
+  for (const { archivePath, name } of archives) {
+    if (!cli.dependencies.has(name)) {
+      throw new Error(`${configPath}: ${JSON.stringify(name)} is not a declared CLI dependency`)
     }
     const installedPackagePath = resolveInstalledPackage({
       cliPackageName: cli.packageName,
@@ -419,7 +448,13 @@ export async function applyDevelopmentPackageOverrides({
       storageRoot,
     })
     await replaceWithDirectoryLink(join(extracted.packageRoot, 'node_modules'), resolverRoot)
-    prepared.push({ archivePath, name, packageRoot: extracted.packageRoot })
+    prepared.push({
+      archivePath,
+      archiveSha256: extracted.archiveSha256,
+      name,
+      packageRoot: extracted.packageRoot,
+      version: extracted.manifest.version,
+    })
   }
 
   for (const override of prepared) {

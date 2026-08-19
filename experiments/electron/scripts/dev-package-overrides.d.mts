@@ -1,7 +1,14 @@
 export interface AppliedDevelopmentPackageOverride {
   archivePath: string
+  archiveSha256: string
   name: string
   packageRoot: string
+  version: string
+}
+
+export interface DevelopmentPackageOverrideArchive {
+  archivePath: string
+  name: string
 }
 
 export interface DevelopmentPackageOverrideOptions {
@@ -23,6 +30,11 @@ export interface DevelopmentPackageOverrideOptions {
 }
 
 export const DEVELOPMENT_PACKAGE_OVERRIDE_CONFIG: '.dev-package-overrides.json'
+
+export function resolveDevelopmentPackageOverrideArchives(options: {
+  repositoryRoot: string
+  configPath?: string
+}): Promise<DevelopmentPackageOverrideArchive[]>
 
 export function applyDevelopmentPackageOverrides(
   options: DevelopmentPackageOverrideOptions,
