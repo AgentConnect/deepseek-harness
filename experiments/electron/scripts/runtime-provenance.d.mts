@@ -2,11 +2,12 @@ export interface RuntimeLocalOverrideProvenance {
   archiveSha256: string
   installedPackageSha256: string
   name: string
+  packagePath: string
   version: string
 }
 
 export interface RuntimeProvenance {
-  schemaVersion: 1
+  schemaVersion: 2
   target: {
     arch: string
     platform: string

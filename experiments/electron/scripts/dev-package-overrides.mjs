@@ -38,6 +38,22 @@ function validatePackageName(name, configPath) {
   }
 }
 
+function declaredDependencyNames(manifest) {
+  const names = new Set()
+  for (const field of ['dependencies', 'optionalDependencies', 'peerDependencies']) {
+    const value = manifest[field]
+    if (value === undefined) continue
+    if (value === null || typeof value !== 'object' || Array.isArray(value)) {
+      throw new Error(`${manifest.name} package.json: ${field} must be an object`)
+    }
+    for (const name of Object.keys(value)) {
+      validatePackageName(name, `${manifest.name} package.json`)
+      names.add(name)
+    }
+  }
+  return [...names].sort((left, right) => left.localeCompare(right))
+}
+
 async function readConfig(configPath) {
   let content
   try {
@@ -188,7 +204,12 @@ async function extractPackage({ archivePath, expectedName, storageRoot }) {
 async function dependencyTarget(roots, name) {
   for (const root of roots) {
     const candidate = join(root, ...name.split('/'))
-    if (await pathMetadata(candidate) !== undefined) return realpath(candidate)
+    if (await pathMetadata(candidate) === undefined) continue
+    try {
+      return await realpath(candidate)
+    } catch (error) {
+      if (error?.code !== 'ENOENT') throw error
+    }
   }
   return undefined
 }
@@ -233,6 +254,7 @@ async function createDependencyOverlay({
   cliNodeModules,
   dependencyRoot,
   installDependencies,
+  localPackages,
   manifest,
   repositoryRoot,
   storageName,
@@ -259,7 +281,8 @@ async function createDependencyOverlay({
   const dependencyTargets = new Map()
   const missingRegular = {}
   for (const [name, version] of Object.entries(regular)) {
-    const target = await dependencyTarget([dependencyRoot, cliNodeModules], name)
+    const target = localPackages.get(name)?.packageRoot
+      ?? await dependencyTarget([dependencyRoot, cliNodeModules], name)
     if (target === undefined) missingRegular[name] = version
     else dependencyTargets.set(name, target)
   }
@@ -278,12 +301,14 @@ async function createDependencyOverlay({
     }
   }
   for (const name of Object.keys(optionalDependencies)) {
-    const target = await dependencyTarget([dependencyRoot, cliNodeModules], name)
+    const target = localPackages.get(name)?.packageRoot
+      ?? await dependencyTarget([dependencyRoot, cliNodeModules], name)
     if (target !== undefined) dependencyTargets.set(name, target)
   }
   for (const name of Object.keys(peerDependencies)) {
     if (dependencyTargets.has(name)) continue
-    const target = await dependencyTarget([dependencyRoot, cliNodeModules], name)
+    const target = localPackages.get(name)?.packageRoot
+      ?? await dependencyTarget([dependencyRoot, cliNodeModules], name)
     if (target === undefined && !optionalPeers.has(name)) {
       throw new Error(`packed package peer dependency ${JSON.stringify(name)} is not installed in the public package closure or CLI workspace`)
     }
@@ -312,6 +337,83 @@ async function createDependencyOverlay({
   } finally {
     await rm(stagingRoot, { force: true, recursive: true })
   }
+}
+
+function resolveOverrideGraph({ cliDependencies, configPath, localPackages }) {
+  const directNames = [...localPackages.keys()]
+    .filter(name => cliDependencies.has(name))
+    .sort((left, right) => left.localeCompare(right))
+  if (directNames.length === 0) {
+    throw new Error(`${configPath}: development package overrides must include at least one declared CLI dependency`)
+  }
+
+  const parentByName = new Map(directNames.map(name => [name, undefined]))
+  const order = [...directNames]
+  for (let index = 0; index < order.length; index++) {
+    const parentName = order[index]
+    const parent = localPackages.get(parentName)
+    for (const name of declaredDependencyNames(parent.manifest)) {
+      if (!localPackages.has(name) || parentByName.has(name)) continue
+      parentByName.set(name, parentName)
+      order.push(name)
+    }
+  }
+
+  const unreachable = [...localPackages.keys()]
+    .filter(name => !parentByName.has(name))
+    .sort((left, right) => left.localeCompare(right))
+  if (unreachable.length > 0) {
+    throw new Error(`${configPath}: configured package overrides are not reachable from a configured CLI dependency: ${unreachable.join(', ')}`)
+  }
+  return { directNames: new Set(directNames), order, parentByName }
+}
+
+async function resolveOverrideContexts({
+  cli,
+  cliNodeModules,
+  directNames,
+  localPackages,
+  order,
+  parentByName,
+  repositoryRoot,
+  resolveInstalledPackage,
+}) {
+  const contexts = new Map()
+  for (const name of order) {
+    const parentName = parentByName.get(name)
+    let dependencyRoot
+    let packagePath
+    if (directNames.has(name)) {
+      const installedPackagePath = resolveInstalledPackage({
+        cliPackageName: cli.packageName,
+        packageName: name,
+        repositoryRoot,
+      })
+      dependencyRoot = await installedDependencyRoot({
+        cliNodeModules,
+        installedPackagePath,
+        name,
+      })
+      packagePath = join(cliNodeModules, ...name.split('/'))
+    } else {
+      const parent = contexts.get(parentName)
+      const installedPackagePath = await dependencyTarget(
+        [parent.dependencyRoot, cliNodeModules],
+        name,
+      )
+      dependencyRoot = installedPackagePath === undefined
+        ? parent.dependencyRoot
+        : await installedDependencyRoot({ cliNodeModules, installedPackagePath, name })
+      packagePath = join(parent.packagePath, 'node_modules', ...name.split('/'))
+    }
+    contexts.set(name, {
+      dependencyRoot,
+      direct: directNames.has(name),
+      packagePath,
+      ...localPackages.get(name),
+    })
+  }
+  return contexts
 }
 
 async function replaceWithDirectoryLink(target, source) {
@@ -403,7 +505,7 @@ export async function resolveDevelopmentPackageOverrideArchives({
  * @param {string} [options.storageRoot] - Ignored content-addressed extraction directory.
  * @param {(input: {repositoryRoot: string, cliPackageName: string, packageName: string}) => string} [options.resolveInstalledPackage] - Installed package lookup.
  * @param {(input: {dependencies: Record<string, string>, repositoryRoot: string, storageRoot: string}) => Promise<string>} [options.installDependencies] - Missing regular dependency installer.
- * @returns {Promise<Array<{name: string, archivePath: string, archiveSha256: string, packageRoot: string, version: string}>>} Applied overrides.
+ * @returns {Promise<Array<{name: string, archivePath: string, archiveSha256: string, direct: boolean, packagePath: string, packageRoot: string, version: string}>>} Applied overrides.
  */
 export async function applyDevelopmentPackageOverrides({
   repositoryRoot,
@@ -418,49 +520,66 @@ export async function applyDevelopmentPackageOverrides({
   if (archives.length === 0) return []
 
   const cli = await readCliDependencies(cliManifestPath)
-  const prepared = []
+  const localPackages = new Map()
   for (const { archivePath, name } of archives) {
-    if (!cli.dependencies.has(name)) {
-      throw new Error(`${configPath}: ${JSON.stringify(name)} is not a declared CLI dependency`)
-    }
-    const installedPackagePath = resolveInstalledPackage({
-      cliPackageName: cli.packageName,
-      packageName: name,
-      repositoryRoot,
-    })
-    const dependencyRoot = await installedDependencyRoot({
-      cliNodeModules,
-      installedPackagePath,
-      name,
-    })
     const extracted = await extractPackage({
       archivePath,
       expectedName: name,
       storageRoot,
     })
-    const resolverRoot = await createDependencyOverlay({
-      cliNodeModules,
-      dependencyRoot,
-      installDependencies,
-      manifest: extracted.manifest,
-      repositoryRoot,
-      storageName: extracted.storageName,
-      storageRoot,
-    })
-    await replaceWithDirectoryLink(join(extracted.packageRoot, 'node_modules'), resolverRoot)
-    prepared.push({
-      archivePath,
-      archiveSha256: extracted.archiveSha256,
-      name,
-      packageRoot: extracted.packageRoot,
-      version: extracted.manifest.version,
-    })
+    localPackages.set(name, { archivePath, ...extracted })
   }
 
-  for (const override of prepared) {
-    const target = join(cliNodeModules, ...override.name.split('/'))
-    await replaceWithDirectoryLink(target, override.packageRoot)
-    console.log(`development package override: ${override.name} <- ${override.archivePath}`)
+  const graph = resolveOverrideGraph({
+    cliDependencies: cli.dependencies,
+    configPath,
+    localPackages,
+  })
+  const contexts = await resolveOverrideContexts({
+    cli,
+    cliNodeModules,
+    localPackages,
+    repositoryRoot,
+    resolveInstalledPackage,
+    ...graph,
+  })
+
+  for (const name of graph.order) {
+    const context = contexts.get(name)
+    const resolverRoot = await createDependencyOverlay({
+      cliNodeModules,
+      dependencyRoot: context.dependencyRoot,
+      installDependencies,
+      localPackages,
+      manifest: context.manifest,
+      repositoryRoot,
+      storageName: context.storageName,
+      storageRoot,
+    })
+    context.resolverRoot = resolverRoot
   }
-  return prepared
+
+  for (const context of contexts.values()) {
+    await replaceWithDirectoryLink(join(context.packageRoot, 'node_modules'), context.resolverRoot)
+  }
+
+  for (const name of graph.directNames) {
+    const context = contexts.get(name)
+    await replaceWithDirectoryLink(context.packagePath, context.packageRoot)
+  }
+
+  const applied = archives.map(({ name }) => {
+    const context = contexts.get(name)
+    console.log(`development package override: ${name} <- ${context.archivePath}`)
+    return {
+      archivePath: context.archivePath,
+      archiveSha256: context.archiveSha256,
+      direct: context.direct,
+      name,
+      packagePath: context.packagePath,
+      packageRoot: context.packageRoot,
+      version: context.manifest.version,
+    }
+  })
+  return applied
 }

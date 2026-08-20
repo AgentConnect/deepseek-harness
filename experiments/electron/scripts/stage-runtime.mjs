@@ -6,7 +6,7 @@ import { existsSync } from 'node:fs'
 import { chmod, cp, lstat, mkdir, mkdtemp, readFile, readdir, realpath, rm } from 'node:fs/promises'
 import { createRequire } from 'node:module'
 import { tmpdir } from 'node:os'
-import { dirname, join, sep } from 'node:path'
+import { dirname, join, relative, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { promisify } from 'node:util'
 import { create as createTar } from 'tar'
@@ -14,7 +14,10 @@ import { pruneRuntime } from './prune-runtime.mjs'
 import { digestDirectory, writeRuntimeProvenance } from './runtime-provenance.mjs'
 import { parseRuntimeTarget } from './runtime-target.mjs'
 import { signMacRuntime } from './sign-macos-runtime.mjs'
-import { applyStagedPackageOverrides } from './staged-package-overrides.mjs'
+import {
+  applyStagedPackageOverrides,
+  materializeStagedPackageOverrides,
+} from './staged-package-overrides.mjs'
 
 const exec = promisify(execFile)
 const EXEC_MAX_BUFFER = 16 * 1024 * 1024
@@ -111,6 +114,7 @@ try {
   const appliedOverrides = runtimeTarget.localOverrides
     ? await applyStagedPackageOverrides({ repositoryRoot, runtimeRoot: stagedTarget })
     : []
+  await materializeStagedPackageOverrides({ applied: appliedOverrides, runtimeRoot: stagedTarget })
   await materializeStagedLinks(stagedTarget)
 
   const electronManifest = JSON.parse(await readFile(fileURLToPath(import.meta.resolve('electron/package.json')), 'utf8'))
@@ -134,7 +138,7 @@ try {
 
   const localOverrides = []
   for (const override of appliedOverrides) {
-    const packageRoot = join(stagedTarget, 'node_modules', ...override.name.split('/'))
+    const packageRoot = override.packagePath
     const manifest = JSON.parse(await readFile(join(packageRoot, 'package.json'), 'utf8'))
     if (typeof manifest.version !== 'string' || manifest.version === '') {
       throw new Error(`stage-runtime: local override ${override.name} has no package version`)
@@ -143,6 +147,7 @@ try {
       archiveSha256: override.archiveSha256,
       installedPackageSha256: await digestDirectory(packageRoot),
       name: override.name,
+      packagePath: relative(stagedTarget, packageRoot).split(sep).join('/'),
       version: manifest.version,
     })
   }

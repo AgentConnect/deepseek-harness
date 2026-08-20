@@ -44,6 +44,29 @@ async function createFixture(packageName = '@scope/pkg') {
   return { archivePath, cliNodeModules, configPath, dependencyRoot, overrideOptions, packageName, publicPackage, root }
 }
 
+async function createPackageArchive({
+  archiveName,
+  files = {},
+  manifest,
+  root,
+}: {
+  archiveName: string
+  files?: Record<string, string>
+  manifest: Record<string, unknown>
+  root: string
+}) {
+  const sourceRoot = join(root, `${archiveName}-source`)
+  const packageRoot = join(sourceRoot, 'package')
+  const archivePath = join(root, `${archiveName}.tgz`)
+  await mkdir(packageRoot, { recursive: true })
+  await writeFile(join(packageRoot, 'package.json'), JSON.stringify(manifest))
+  for (const [path, content] of Object.entries(files)) {
+    await writeFile(join(packageRoot, path), content)
+  }
+  await createTar({ cwd: sourceRoot, file: archivePath, gzip: true }, ['package'])
+  return archivePath
+}
+
 afterEach(async () => {
   await Promise.all(roots.splice(0).map(root => rm(root, { force: true, recursive: true })))
 })
@@ -128,6 +151,109 @@ describe('development package overrides', () => {
     expect(loaded.default).toBe('public dependency + installed dependency + workspace peer')
   })
 
+  it('treats a dangling optional dependency symlink as unavailable', async () => {
+    const fixture = await createFixture()
+    const missingOptional = join(fixture.dependencyRoot, 'missing-optional')
+    await symlink(join(fixture.root, 'missing-target'), missingOptional, 'dir')
+    const packageSource = join(fixture.root, 'archive-source', 'package')
+    await writeFile(join(packageSource, 'package.json'), JSON.stringify({
+      name: fixture.packageName,
+      optionalDependencies: { 'missing-optional': '1.0.0' },
+      version: '1.0.0',
+    }))
+    await createTar({ cwd: join(fixture.root, 'archive-source'), file: fixture.archivePath, gzip: true }, ['package'])
+
+    await expect(applyDevelopmentPackageOverrides(fixture.overrideOptions)).resolves.toHaveLength(1)
+  })
+
+  it('mounts reachable local transitive packages and prefers them over the public closure', async () => {
+    const fixture = await createFixture('@scope/plugin')
+    const sdkName = '@scope/sdk'
+    const nativeName = '@scope/native'
+    const publicSdk = join(fixture.dependencyRoot, ...sdkName.split('/'))
+    const publicNative = join(fixture.dependencyRoot, ...nativeName.split('/'))
+    await mkdir(publicSdk, { recursive: true })
+    await mkdir(publicNative, { recursive: true })
+    await writeFile(join(publicSdk, 'package.json'), JSON.stringify({ name: sdkName, version: '0.9.0' }))
+    await writeFile(join(publicSdk, 'index.js'), 'export default "public sdk"\n')
+    await writeFile(join(publicNative, 'package.json'), JSON.stringify({ name: nativeName, version: '0.9.0' }))
+    await writeFile(join(publicNative, 'index.js'), 'module.exports = "public native"\n')
+    await writeFile(join(fixture.publicPackage, 'package.json'), JSON.stringify({
+      dependencies: { [sdkName]: '0.9.0' },
+      name: fixture.packageName,
+      version: '0.9.0',
+    }))
+
+    const pluginArchive = await createPackageArchive({
+      archiveName: 'plugin',
+      files: {
+        'index.js': 'import sdk from "@scope/sdk"\nexport default `plugin + ${sdk}`\n',
+      },
+      manifest: {
+        dependencies: { [sdkName]: '1.0.0' },
+        exports: './index.js',
+        name: fixture.packageName,
+        type: 'module',
+        version: '1.0.0',
+      },
+      root: fixture.root,
+    })
+    const sdkArchive = await createPackageArchive({
+      archiveName: 'sdk',
+      files: {
+        'index.js': 'import native from "@scope/native"\nexport default `sdk + ${native}`\n',
+      },
+      manifest: {
+        exports: './index.js',
+        name: sdkName,
+        optionalDependencies: { [nativeName]: '1.0.0' },
+        type: 'module',
+        version: '1.0.0',
+      },
+      root: fixture.root,
+    })
+    const nativeArchive = await createPackageArchive({
+      archiveName: 'native',
+      files: { 'index.js': 'module.exports = "local native"\n' },
+      manifest: {
+        main: './index.js',
+        name: nativeName,
+        type: 'commonjs',
+        version: '1.0.0',
+      },
+      root: fixture.root,
+    })
+    await writeFile(fixture.configPath, JSON.stringify({
+      [fixture.packageName]: pluginArchive,
+      [sdkName]: sdkArchive,
+      [nativeName]: nativeArchive,
+    }))
+    const resolveInstalledPackage = vi.fn(() => fixture.publicPackage)
+
+    const applied = await applyDevelopmentPackageOverrides({
+      ...fixture.overrideOptions,
+      resolveInstalledPackage,
+    })
+
+    const entry = join(fixture.cliNodeModules, '@scope', 'plugin', 'index.js')
+    const loaded = await import(/* @vite-ignore */ `${pathToFileURL(entry).href}?test=${Date.now()}`)
+    expect(loaded.default).toBe('plugin + sdk + local native')
+    expect(resolveInstalledPackage).toHaveBeenCalledOnce()
+    expect(resolveInstalledPackage).toHaveBeenCalledWith(expect.objectContaining({
+      packageName: fixture.packageName,
+    }))
+    expect(applied).toHaveLength(3)
+    expect(applied.map(override => [override.name, override.direct])).toEqual([
+      [nativeName, false],
+      [fixture.packageName, true],
+      [sdkName, false],
+    ])
+    await expect(realpath(join(fixture.cliNodeModules, '@scope', 'sdk')))
+      .rejects.toMatchObject({ code: 'ENOENT' })
+    expect(await realpath(join(fixture.cliNodeModules, '@scope', 'plugin', 'node_modules', '@scope', 'sdk')))
+      .toBe(await realpath(applied.find(override => override.name === sdkName)?.packageRoot ?? ''))
+  })
+
   it('does nothing when the machine-local configuration is absent', async () => {
     const root = await mkdtemp(join(tmpdir(), 'dsh-dev-package-overrides-'))
     roots.push(root)
@@ -145,7 +271,6 @@ describe('development package overrides', () => {
 
   it.each([
     ['an invalid package name', { '../pkg': 'local-package.tgz' }, 'invalid npm package name'],
-    ['an undeclared package', { 'other-package': 'local-package.tgz' }, 'is not a declared CLI dependency'],
     ['a missing archive', { '@scope/pkg': 'missing.tgz' }, 'is not a regular file'],
     ['a non-archive path', { '@scope/pkg': 'local-package.zip' }, 'must reference a .tgz or .tar.gz archive'],
   ])('rejects %s', async (_label, config, expected) => {
@@ -154,6 +279,35 @@ describe('development package overrides', () => {
 
     await expect(applyDevelopmentPackageOverrides(fixture.overrideOptions))
       .rejects.toThrow(expected)
+  })
+
+  it('rejects configuration without a direct CLI dependency', async () => {
+    const fixture = await createFixture()
+    const archivePath = await createPackageArchive({
+      archiveName: 'other-package',
+      manifest: { name: 'other-package', version: '1.0.0' },
+      root: fixture.root,
+    })
+    await writeFile(fixture.configPath, JSON.stringify({ 'other-package': archivePath }))
+
+    await expect(applyDevelopmentPackageOverrides(fixture.overrideOptions))
+      .rejects.toThrow('must include at least one declared CLI dependency')
+  })
+
+  it('rejects a configured package outside the local dependency graph', async () => {
+    const fixture = await createFixture()
+    const orphanArchive = await createPackageArchive({
+      archiveName: 'orphan-package',
+      manifest: { name: 'orphan-package', version: '1.0.0' },
+      root: fixture.root,
+    })
+    await writeFile(fixture.configPath, JSON.stringify({
+      [fixture.packageName]: fixture.archivePath,
+      'orphan-package': orphanArchive,
+    }))
+
+    await expect(applyDevelopmentPackageOverrides(fixture.overrideOptions))
+      .rejects.toThrow('not reachable from a configured CLI dependency: orphan-package')
   })
 
   it('rejects an archive whose package name does not match the configured dependency', async () => {

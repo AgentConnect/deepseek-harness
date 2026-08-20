@@ -1,13 +1,22 @@
 /** Owned DSH Web Host subprocess lifecycle for the Electron shell. */
 
 import { spawn, type ChildProcessByStdio } from 'node:child_process'
-import { createInterface } from 'node:readline'
+import { createInterface, type Interface } from 'node:readline'
 import type { Readable } from 'node:stream'
 
 const READY_PREFIX = 'dsh web: '
 const DEFAULT_READY_TIMEOUT_MS = 30_000
 const DEFAULT_STOP_TIMEOUT_MS = 10_000
-const STDERR_TAIL_BYTES = 16 * 1024
+const DIAGNOSTIC_TAIL_BYTES = 16 * 1024
+
+/** Remove common credentials before Host output is retained or shown to a user. */
+export function redactHostDiagnosticLine(line: string): string {
+  return line
+    .replace(/\b(authorization|proxy-authorization)\s*[:=]\s*(?:Bearer\s+)?[^\s,;]+/giu, '$1:[REDACTED]')
+    .replace(/\b(Bearer)\s+[^\s,;]+/giu, '$1 [REDACTED]')
+    .replace(/\b(api[-_ ]?key|access[-_ ]?token|refresh[-_ ]?token|token|secret|password)\s*([:=])\s*[^\s,;&#]+/giu, '$1$2[REDACTED]')
+    .replace(/([?&](?:api[-_]?key|access[-_]?token|refresh[-_]?token|token|secret|password)=)[^&#\s]+/giu, '$1[REDACTED]')
+}
 
 /** Process exit facts observed after the DSH Host reaches quiescence. */
 export interface WebHostExit {
@@ -60,23 +69,38 @@ export function parseWebHostReadyUrl(line: string): string | undefined {
 export class WebHostProcess {
   /** Resolves with the validated loopback URL after the CLI reports readiness. */
   readonly ready: Promise<string>
-  /** Resolves when the child exits; spawn failures reject. */
+  /** Resolves after the child and its stdio close; spawn failures reject. */
   readonly exited: Promise<WebHostExit>
 
   private stopPromise: Promise<void> | undefined
   private readonly stopTimeoutMs: number
+  private diagnosticOutput = ''
 
   private constructor(
     private readonly child: ChildProcessByStdio<null, Readable, Readable>,
     options: WebHostLaunchOptions,
   ) {
     this.stopTimeoutMs = options.stopTimeoutMs ?? DEFAULT_STOP_TIMEOUT_MS
-    this.exited = new Promise<WebHostExit>((resolve, reject) => {
-      child.once('exit', (code, signal) => { resolve({ code, signal }) })
+    const stdout = createInterface({ input: child.stdout })
+    const stderr = createInterface({ input: child.stderr })
+    stderr.on('line', (line) => {
+      const safeLine = this.appendDiagnostic('stderr', line)
+      options.onStderrLine?.(safeLine)
+    })
+    const stdoutClosed = new Promise<void>((resolve) => { stdout.once('close', resolve) })
+    const stderrClosed = new Promise<void>((resolve) => { stderr.once('close', resolve) })
+    const processClosed = new Promise<WebHostExit>((resolve, reject) => {
+      child.once('close', (code, signal) => { resolve({ code, signal }) })
       child.once('error', reject)
     })
+    // ChildProcess `close` and readline's final `line`/`close` delivery are
+    // distinct events. Recovery must not read diagnostics until all drain.
+    this.exited = processClosed.then(async (exit) => {
+      await Promise.all([stdoutClosed, stderrClosed])
+      return exit
+    })
     void this.exited.catch(() => {})
-    this.ready = this.observeReadiness(options)
+    this.ready = this.observeReadiness(options, stdout)
   }
 
   /**
@@ -102,16 +126,18 @@ export class WebHostProcess {
     return this.stopPromise
   }
 
-  private observeReadiness(options: WebHostLaunchOptions): Promise<string> {
-    const stdout = createInterface({ input: this.child.stdout })
-    const stderr = createInterface({ input: this.child.stderr })
-    let stderrTail = ''
+  /** Return the bounded, redacted output tail captured across the full child lifetime. */
+  diagnostics(): string {
+    return this.diagnosticOutput.trim()
+  }
 
-    stderr.on('line', (line) => {
-      options.onStderrLine?.(line)
-      stderrTail = `${stderrTail}${line}\n`.slice(-STDERR_TAIL_BYTES)
-    })
+  private appendDiagnostic(source: 'stdout' | 'stderr', line: string): string {
+    const safeLine = redactHostDiagnosticLine(line)
+    this.diagnosticOutput = `${this.diagnosticOutput}[${source}] ${safeLine}\n`.slice(-DIAGNOSTIC_TAIL_BYTES)
+    return safeLine
+  }
 
+  private observeReadiness(options: WebHostLaunchOptions, stdout: Interface): Promise<string> {
     return new Promise<string>((resolve, reject) => {
       let settled = false
       const finish = (action: () => void): void => {
@@ -126,16 +152,15 @@ export class WebHostProcess {
       timeout.unref()
 
       stdout.on('line', (line) => {
-        options.onStdoutLine?.(line)
+        const safeLine = this.appendDiagnostic('stdout', line)
+        options.onStdoutLine?.(safeLine)
         const url = parseWebHostReadyUrl(line)
         if (url !== undefined) finish(() => { resolve(url) })
       })
       void this.exited.then(
         ({ code, signal }) => {
-          stdout.close()
-          stderr.close()
           finish(() => {
-            const detail = stderrTail.trim()
+            const detail = this.diagnostics()
             reject(new Error(
               `dsh Electron: Web Host exited before readiness (code=${String(code)}, signal=${String(signal)})`
               + (detail.length === 0 ? '' : `\n${detail}`),
@@ -143,8 +168,6 @@ export class WebHostProcess {
           })
         },
         (error: unknown) => {
-          stdout.close()
-          stderr.close()
           finish(() => { reject(error instanceof Error ? error : new Error(String(error))) })
         },
       )

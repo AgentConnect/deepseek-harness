@@ -1,0 +1,6 @@
+# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
+# side as of the last confirmed-consistent state. Both languages carry equal authority;
+# after editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write .agents/notes/implemented/bug-fix/2026-08-20-recover-owned-electron-host.md
+2026-08-20-recover-owned-electron-host.md: 29e35f8fa9e961fbddca485b27154e69de6d5ea3
+2026-08-20-recover-owned-electron-host.zh.md: bb75d57c10e2daad6a96f2acc909bc27408d9d2f

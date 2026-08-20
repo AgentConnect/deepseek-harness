@@ -12,15 +12,19 @@ pnpm --filter deepseek-harness-electron start:dev
 
 This command builds and starts the desktop application with DSH state under `.dev-state/dsh`, AWiki identity and message state under `.dev-state/awiki-im-core`, Electron cookies, preferences, caches, and browser storage under `.dev-state/electron`, and the repository root as the default agent workspace. The ignored `.dev-state` directory keeps all development data separate from the installed application's data, so the installed application does not need to be removed.
 
-To test an unpublished packed plugin without changing committed dependencies, create the ignored `.dev-package-overrides.json` at the repository root. It maps each CLI dependency to an absolute archive path or a path relative to the configuration file:
+The Electron shell owns the local Host lifecycle. If a running Host exits unexpectedly, the existing window switches to a local recovery state and makes two bounded automatic restart attempts within a rolling minute. Repeated failure presents explicit restart, redacted-diagnostics copy, and quit actions instead of closing the application after an error acknowledgement. A normal application quit still waits for the owned Host to reach quiescence.
+
+To test an unpublished packed plugin and its unpublished runtime dependencies without changing committed dependencies, create the ignored `.dev-package-overrides.json` at the repository root. Each value is an absolute archive path or a path relative to the configuration file:
 
 ```json
 {
-  "@scope/plugin": ".dev-package-overrides/archives/plugin.tgz"
+  "@scope/plugin": ".dev-package-overrides/archives/plugin.tgz",
+  "@scope/sdk": ".dev-package-overrides/archives/sdk.tgz",
+  "@scope/native": ".dev-package-overrides/archives/native.tgz"
 }
 ```
 
-`start:dev` builds the workspace first, then validates and mounts each packed package immediately before Electron starts. The override resolves declared dependencies from the installed public package's locked closure and the CLI workspace, so run `pnpm install --frozen-lockfile` once if that package is not installed. A missing configuration uses the public dependencies; invalid JSON, undeclared package names, missing archives, archive package-name mismatches, and missing installed dependencies stop the launch. Extracted packages and their generated dependency links remain under the ignored `.dev-package-overrides/` directory, separate from `.dev-state`, so clearing first-run application data does not discard package overrides. Manifests, the lockfile, normal `start` launches, and release packaging commands continue to use public dependencies.
+`start:dev` builds the workspace first, then validates and mounts each packed package immediately before Electron starts. At least one configured package must be a direct CLI dependency. Every other configured package must be recursively reachable through that local package's `dependencies`, `optionalDependencies`, or `peerDependencies`; only direct packages are mounted in the CLI resolver, while local transitive packages stay under their real parent package. A configured local archive takes precedence over the public package with the same name. Other declared dependencies resolve from the installed public package's locked closure and the CLI workspace, so run `pnpm install --frozen-lockfile` once if the direct package is not installed. A missing configuration uses the public dependencies; invalid JSON, no direct root package, unreachable package archives, missing archives, archive package-name mismatches, and missing required installed dependencies stop the launch. Extracted packages and their generated dependency links remain under the ignored `.dev-package-overrides/` directory, separate from `.dev-state`, so clearing first-run application data does not discard package overrides. Manifests, the lockfile, normal `start` launches, and release packaging commands continue to use public dependencies.
 
 ## Build installers
 
@@ -39,7 +43,7 @@ pnpm --filter deepseek-harness-electron make:mac:local
 pnpm --filter deepseek-harness-electron make:mac:x64:local
 ```
 
-These commands require at least one configured archive, require every non-optional dependency and peer to exist in the lockfile-derived staged runtime, and never install an additional dependency while packaging. The runtime records the target, packed archive SHA-256, package version, and installed package digest; post-build verification compares those values with the current configuration and packaged files. The commands without `:local` ignore `.dev-package-overrides.json` and reject an artifact that unexpectedly contains a local override.
+These commands require at least one configured direct archive, require every non-optional dependency and peer to exist in the lockfile-derived staged runtime, and never install an additional dependency while packaging. The runtime records the target, packed archive SHA-256, package version, resolver-relative installation path, and installed package digest for every direct and transitive local archive; post-build verification compares those values with the current configuration and packaged files. The commands without `:local` ignore `.dev-package-overrides.json` and reject an artifact that unexpectedly contains a local override.
 
 An Apple Silicon Mac can create an unsigned Intel integration-test installer directly. The packaging pipeline passes the x64 target explicitly to every target-sensitive stage, so the host Node process remains native arm64:
 

@@ -9,7 +9,10 @@ import {
   writeRuntimeProvenance,
 } from '../scripts/runtime-provenance.mjs'
 import { parseRuntimeTarget } from '../scripts/runtime-target.mjs'
-import { applyStagedPackageOverrides } from '../scripts/staged-package-overrides.mjs'
+import {
+  applyStagedPackageOverrides,
+  materializeStagedPackageOverrides,
+} from '../scripts/staged-package-overrides.mjs'
 import { verifyMachOArchitecture } from '../scripts/verify-macos-artifacts.mjs'
 
 const roots: string[] = []
@@ -83,6 +86,62 @@ describe('staged package overrides', () => {
     await expect(applyStagedPackageOverrides(fixture))
       .rejects.toThrow('dependencies are absent from the locked runtime: new-unlocked-dependency')
   })
+
+  it('materializes reachable transitive overrides under their local parent packages', async () => {
+    const fixture = await createStagedOverrideFixture()
+    const sdkName = '@scope/sdk'
+    const nativeName = '@scope/native'
+    const nodeModules = join(fixture.runtimeRoot, 'node_modules')
+    const publicSdk = join(nodeModules, ...sdkName.split('/'))
+    const publicNative = join(nodeModules, ...nativeName.split('/'))
+    await mkdir(publicSdk, { recursive: true })
+    await mkdir(publicNative, { recursive: true })
+    await writeFile(join(publicSdk, 'package.json'), JSON.stringify({ name: sdkName, version: '1.0.0' }))
+    await writeFile(join(publicSdk, 'marker.txt'), 'public sdk')
+    await writeFile(join(publicNative, 'package.json'), JSON.stringify({ name: nativeName, version: '1.0.0' }))
+    await writeFile(join(publicNative, 'marker.txt'), 'public native')
+    await writeFile(join(fixture.archiveSource, 'package.json'), JSON.stringify({
+      dependencies: { [sdkName]: '2.0.0' },
+      name: fixture.packageName,
+      version: '2.0.0',
+    }))
+    await createTar({ cwd: join(fixture.repositoryRoot, 'archive-source'), file: fixture.archivePath, gzip: true }, ['package'])
+
+    const sdkSourceRoot = join(fixture.repositoryRoot, 'sdk-source')
+    const sdkSource = join(sdkSourceRoot, 'package')
+    const sdkArchive = join(fixture.repositoryRoot, 'local-sdk.tgz')
+    await mkdir(sdkSource, { recursive: true })
+    await writeFile(join(sdkSource, 'package.json'), JSON.stringify({
+      name: sdkName,
+      optionalDependencies: { [nativeName]: '2.0.0' },
+      version: '2.0.0',
+    }))
+    await writeFile(join(sdkSource, 'marker.txt'), 'local sdk')
+    await createTar({ cwd: sdkSourceRoot, file: sdkArchive, gzip: true }, ['package'])
+
+    const nativeSourceRoot = join(fixture.repositoryRoot, 'native-source')
+    const nativeSource = join(nativeSourceRoot, 'package')
+    const nativeArchive = join(fixture.repositoryRoot, 'local-native.tgz')
+    await mkdir(nativeSource, { recursive: true })
+    await writeFile(join(nativeSource, 'package.json'), JSON.stringify({ name: nativeName, version: '2.0.0' }))
+    await writeFile(join(nativeSource, 'marker.txt'), 'local native')
+    await createTar({ cwd: nativeSourceRoot, file: nativeArchive, gzip: true }, ['package'])
+    await writeFile(join(fixture.repositoryRoot, '.dev-package-overrides.json'), JSON.stringify({
+      [fixture.packageName]: fixture.archivePath,
+      [sdkName]: sdkArchive,
+      [nativeName]: nativeArchive,
+    }))
+
+    const applied = await applyStagedPackageOverrides(fixture)
+    await materializeStagedPackageOverrides({ applied, runtimeRoot: fixture.runtimeRoot })
+
+    const localSdk = join(nodeModules, '@scope', 'plugin', 'node_modules', '@scope', 'sdk')
+    const localNative = join(localSdk, 'node_modules', '@scope', 'native')
+    expect(await readFile(join(localSdk, 'marker.txt'), 'utf8')).toBe('local sdk')
+    expect(await readFile(join(localNative, 'marker.txt'), 'utf8')).toBe('local native')
+    expect(await readFile(join(publicSdk, 'marker.txt'), 'utf8')).toBe('public sdk')
+    expect(applied.map(override => override.direct)).toEqual([false, true, false])
+  })
 })
 
 describe('runtime provenance and architecture verification', () => {
@@ -102,14 +161,19 @@ describe('runtime provenance and architecture verification', () => {
         archiveSha256: 'a'.repeat(64),
         installedPackageSha256,
         name: '@scope/plugin',
+        packagePath: 'node_modules/@scope/plugin',
         version: '2.0.0',
       }],
     })
 
     await expect(readRuntimeProvenance(root)).resolves.toMatchObject({
-      schemaVersion: 1,
+      schemaVersion: 2,
       target: { arch: 'x64', platform: 'darwin' },
-      localOverrides: [{ installedPackageSha256, name: '@scope/plugin' }],
+      localOverrides: [{
+        installedPackageSha256,
+        name: '@scope/plugin',
+        packagePath: 'node_modules/@scope/plugin',
+      }],
     })
   })
 
