@@ -2,7 +2,7 @@
 
 import { createHash } from 'node:crypto'
 import { lstat, readFile, readdir, readlink, writeFile } from 'node:fs/promises'
-import { join, relative, sep } from 'node:path'
+import { isAbsolute, join, relative, sep } from 'node:path'
 
 export const RUNTIME_PROVENANCE_FILE = '.dsh-runtime-provenance.json'
 
@@ -53,12 +53,12 @@ export async function digestFile(path) {
  * @param {string} options.root - Staged runtime root.
  * @param {'darwin' | 'win32'} options.platform - Target platform.
  * @param {'arm64' | 'x64'} options.arch - Target architecture.
- * @param {Array<{name: string, version: string, archiveSha256: string, installedPackageSha256: string}>} options.localOverrides - Applied local packages.
+ * @param {Array<{name: string, version: string, archiveSha256: string, installedPackageSha256: string, packagePath: string}>} options.localOverrides - Applied local packages.
  * @returns {Promise<object>} Written provenance object.
  */
 export async function writeRuntimeProvenance({ root, platform, arch, localOverrides }) {
   const provenance = {
-    schemaVersion: 1,
+    schemaVersion: 2,
     target: { arch, platform },
     localOverrides: [...localOverrides].sort((left, right) => left.name.localeCompare(right.name)),
   }
@@ -74,7 +74,7 @@ function assertString(value, description) {
 /**
  * Read and validate provenance from an extracted staged runtime.
  * @param {string} root - Extracted runtime root.
- * @returns {Promise<{schemaVersion: 1, target: {platform: string, arch: string}, localOverrides: Array<{name: string, version: string, archiveSha256: string, installedPackageSha256: string}>}>} Validated provenance.
+ * @returns {Promise<{schemaVersion: 2, target: {platform: string, arch: string}, localOverrides: Array<{name: string, version: string, archiveSha256: string, installedPackageSha256: string, packagePath: string}>}>} Validated provenance.
  */
 export async function readRuntimeProvenance(root) {
   const path = join(root, RUNTIME_PROVENANCE_FILE)
@@ -84,7 +84,7 @@ export async function readRuntimeProvenance(root) {
   } catch (error) {
     throw new Error(`${path}: cannot read runtime provenance`, { cause: error })
   }
-  if (provenance?.schemaVersion !== 1 || provenance.target === null || typeof provenance.target !== 'object') {
+  if (provenance?.schemaVersion !== 2 || provenance.target === null || typeof provenance.target !== 'object') {
     throw new Error(`${path}: unsupported runtime provenance schema`)
   }
   const platform = assertString(provenance.target.platform, 'target platform')
@@ -97,12 +97,18 @@ export async function readRuntimeProvenance(root) {
     if (!SHA256.test(archiveSha256) || !SHA256.test(installedPackageSha256)) {
       throw new Error(`${path}: invalid SHA-256 digest for local override ${index}`)
     }
+    const packagePath = assertString(override.packagePath, `local override ${index} package path`)
+    const segments = packagePath.split('/')
+    if (isAbsolute(packagePath) || segments.some(segment => segment === '' || segment === '.' || segment === '..')) {
+      throw new Error(`${path}: invalid package path for local override ${index}`)
+    }
     return {
       archiveSha256,
       installedPackageSha256,
       name: assertString(override.name, `local override ${index} name`),
+      packagePath,
       version: assertString(override.version, `local override ${index} version`),
     }
   })
-  return { schemaVersion: 1, target: { arch, platform }, localOverrides }
+  return { schemaVersion: 2, target: { arch, platform }, localOverrides }
 }

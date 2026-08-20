@@ -72,7 +72,7 @@ async function verifyLocalOverrides(runtimeRoot, provenance, localOverrides) {
     if (archiveSha256 !== override.archiveSha256) {
       throw new Error(`packed archive digest changed after staging: ${override.name}`)
     }
-    const packageRoot = join(runtimeRoot, 'node_modules', ...override.name.split('/'))
+    const packageRoot = join(runtimeRoot, ...override.packagePath.split('/'))
     const manifest = JSON.parse(await readFile(join(packageRoot, 'package.json'), 'utf8'))
     if (manifest.version !== override.version) {
       throw new Error(`packaged local override version does not match provenance: ${override.name}`)

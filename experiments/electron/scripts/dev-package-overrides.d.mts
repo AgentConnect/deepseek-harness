@@ -1,7 +1,9 @@
 export interface AppliedDevelopmentPackageOverride {
   archivePath: string
   archiveSha256: string
+  direct: boolean
   name: string
+  packagePath: string
   packageRoot: string
   version: string
 }
